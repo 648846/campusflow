@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 任务规划</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            accent: '#f59e0b',
+            success: '#10b981',
+            danger: '#ef4444',
+            dark: '#0f172a',
+            darkLighter: '#1e293b',
+            light: '#f8fafc'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
+            'inner-glow': 'inset 0 0 20px rgba(99, 102, 241, 0.1)'
+          }
+        },
+        darkMode: 'class'
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .glass-dark {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .nav-item.active button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      }
+      .nav-item button {
+        color: #64748b;
+      }
+      .dark .nav-item button {
+        color: #94a3b8;
+      }
+      .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+      }
+      .dark .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+      }
+      .task-card {
+        transition: all 0.3s ease;
+      }
+      .task-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+      .priority-high {
+        border-left: 4px solid #ef4444;
+      }
+      .priority-medium {
+        border-left: 4px solid #f59e0b;
+      }
+      .priority-low {
+        border-left: 4px solid #10b981;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
+  <div class="flex h-screen overflow-hidden">
+    <aside class="w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">CampusFlow</h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400">大学生专属时间规划</p>
+            </div>
+          </div>
+          
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-all hover-lift group">
+            <svg class="w-5 h-5 dark:hidden text-gray-600 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-5 h-5 hidden dark:block text-yellow-300 group-hover:text-yellow-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 space-y-2">
+        <div class="nav-item" data-module="dashboard">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('dashboard.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+            </svg>
+            <span class="font-medium">仪表盘</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="schedule">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="font-medium">课程管理</span>
+          </button>
+        </div>
+
+        <div class="nav-item active" data-module="tasks">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('tasks.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <span class="font-medium">任务规划</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="goals">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('goals.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-3.138-3.138z"></path>
+            </svg>
+            <span class="font-medium">学习目标</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="focus">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('focus.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-medium">专注模式</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="preview">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('preview.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span class="font-medium">在线预览</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="glass dark:glass-dark rounded-xl p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              S
+            </div>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">努力努力再努力</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <p>本周学习时长: <span class="text-primary font-semibold">12.5小时</span></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-6 lg:p-8">
+        <div class="mb-8 slide-up">
+          <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">任务规划</h2>
+          <p class="text-gray-600 dark:text-gray-400">管理您的学习任务和待办事项</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+                </svg>
+              </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="totalTasks">0</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">总任务数</p>
+          </div>
+
+          <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-success to-success/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="completedTasks">0</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">已完成</p>
+          </div>
+
+          <div class="glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1" id="inProgressTasks">0</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">进行中</p>
+          </div>
+        </div>
+
+        <div class="glass dark:glass-dark rounded-2xl p-6 mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">今日任务</h3>
+            <button class="px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-glow transition-all hover-lift" onclick="openAddTaskModal()">
+              添加任务
+            </button>
+          </div>
+          <div class="space-y-4" id="taskList">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="glass dark:glass-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">任务优先级分布</h3>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">高优先级</span>
+                  <span class="text-sm font-medium text-danger" id="highPriorityCount">0</span>
+                </div>
+                <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-danger to-red-400" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">中优先级</span>
+                  <span class="text-sm font-medium text-accent" id="mediumPriorityCount">0</span>
+                </div>
+                <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-accent to-yellow-400" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">低优先级</span>
+                  <span class="text-sm font-medium text-success" id="lowPriorityCount">0</span>
+                </div>
+                <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-success to-green-400" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass dark:glass-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">本周任务完成情况</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full bg-primary"></div>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">周一</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">0/0</span>
+                  <div class="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full bg-secondary"></div>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">周二</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">0/0</span>
+                  <div class="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-secondary" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full bg-accent"></div>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">周三</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">0/0</span>
+                  <div class="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-accent" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full bg-success"></div>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">周四</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">0/0</span>
+                  <div class="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-success" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="addTaskModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+      <div class="glass dark:glass-dark rounded-2xl p-6 w-full max-w-md mx-4 transform transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white">添加新任务</h3>
+          <button onclick="closeAddTaskModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <form id="addTaskForm" onsubmit="handleAddTask(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">任务标题</label>
+              <input type="text" id="taskTitle" required class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="输入任务标题">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">相关课程</label>
+              <select id="taskCourse" required class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                <option value="">选择课程</option>
+                <option value="数据结构与算法">数据结构与算法</option>
+                <option value="线性代数">线性代数</option>
+                <option value="计算机网络">计算机网络</option>
+                <option value="数据库原理">数据库原理</option>
+                <option value="软件工程">软件工程</option>
+                <option value="操作系统">操作系统</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">优先级</label>
+              <select id="taskPriority" required class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                <option value="high">高优先级</option>
+                <option value="medium" selected>中优先级</option>
+                <option value="low">低优先级</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">截止时间</label>
+              <input type="datetime-local" id="taskDueDate" required class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+            </div>
+          </div>
+          
+          <div class="flex gap-3 mt-6">
+            <button type="button" onclick="closeAddTaskModal()" class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              取消
+            </button>
+            <button type="submit" class="flex-1 px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-glow transition-all hover-lift">
+              添加任务
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+      <div class="glass dark:glass-dark rounded-xl p-4 shadow-lg flex items-center gap-3">
+        <div id="notificationIcon" class="w-8 h-8 rounded-full flex items-center justify-center">
+        </div>
+        <div>
+          <p id="notificationTitle" class="font-medium text-gray-900 dark:text-white"></p>
+          <p id="notificationMessage" class="text-sm text-gray-500 dark:text-gray-400"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tasks = [];
+    
+    function loadTasks() {
+      const savedTasks = localStorage.getItem('campusflow_tasks');
+      if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+      } else {
+        tasks = [
+          { id: 1, title: '完成数据结构作业', course: '数据结构与算法', priority: 'high', dueDate: '今天 18:00', completed: false },
+          { id: 2, title: '复习线性代数第三章', course: '线性代数', priority: 'medium', dueDate: '明天 10:00', completed: false },
+          { id: 3, title: '准备计算机网络实验报告', course: '计算机网络', priority: 'high', dueDate: '后天 14:00', completed: false },
+          { id: 4, title: '数据库课程设计', course: '数据库原理', priority: 'medium', dueDate: '周五 16:00', completed: false },
+          { id: 5, title: '阅读软件工程论文', course: '软件工程', priority: 'low', dueDate: '下周', completed: false },
+          { id: 6, title: '操作系统实验', course: '操作系统', priority: 'high', dueDate: '今天 20:00', completed: false }
+        ];
+        saveTasks();
+      }
+    }
+
+    function saveTasks() {
+      try {
+        localStorage.setItem('campusflow_tasks', JSON.stringify(tasks));
+        return true;
+      } catch (error) {
+        console.error('保存任务失败:', error);
+        return false;
+      }
+    }
+
+    function openAddTaskModal() {
+      const modal = document.getElementById('addTaskModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('taskTitle').focus();
+    }
+
+    function closeAddTaskModal() {
+      const modal = document.getElementById('addTaskModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('addTaskForm').reset();
+    }
+
+    function handleAddTask(event) {
+      event.preventDefault();
+      
+      try {
+        const title = document.getElementById('taskTitle').value.trim();
+        const course = document.getElementById('taskCourse').value;
+        const priority = document.getElementById('taskPriority').value;
+        const dueDate = document.getElementById('taskDueDate').value;
+        
+        if (!title) {
+          showNotification('错误', '请输入任务标题', 'error');
+          return;
+        }
+        
+        if (!course) {
+          showNotification('错误', '请选择相关课程', 'error');
+          return;
+        }
+        
+        const newTask = {
+          id: Date.now(),
+          title: title,
+          course: course,
+          priority: priority,
+          dueDate: formatDueDate(dueDate),
+          completed: false
+        };
+        
+        tasks.unshift(newTask);
+        
+        if (saveTasks()) {
+          renderTaskList();
+          closeAddTaskModal();
+          showNotification('成功', '任务添加成功', 'success');
+        } else {
+          showNotification('错误', '保存任务失败，请重试', 'error');
+        }
+      } catch (error) {
+        console.error('添加任务失败:', error);
+        showNotification('错误', '添加任务时发生错误', 'error');
+      }
+    }
+
+    function formatDueDate(dateString) {
+      try {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = date - now;
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffDays === 0) {
+          return `今天 ${date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`;
+        } else if (diffDays === 1) {
+          return `明天 ${date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`;
+        } else if (diffDays === 2) {
+          return `后天 ${date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`;
+        } else {
+          return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+      } catch (error) {
+        return dateString;
+      }
+    }
+
+    function showNotification(title, message, type = 'success') {
+      const notification = document.getElementById('notification');
+      const icon = document.getElementById('notificationIcon');
+      const titleEl = document.getElementById('notificationTitle');
+      const messageEl = document.getElementById('notificationMessage');
+      
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+      
+      if (type === 'success') {
+        icon.innerHTML = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+        icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-success';
+      } else {
+        icon.innerHTML = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        icon.className = 'w-8 h-8 rounded-full flex items-center justify-center bg-danger';
+      }
+      
+      notification.classList.remove('hidden');
+      
+      setTimeout(function() {
+        notification.classList.add('hidden');
+      }, 3000);
+    }
+
+    function renderTaskList() {
+      const container = document.getElementById('taskList');
+      
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400">暂无任务</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">点击"添加任务"开始创建</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = tasks.map(function(task) {
+        return `
+        <div class="task-card p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700 priority-${task.priority}">
+          <div class="flex items-start gap-4">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} class="mt-1 w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" onchange="toggleTask(${task.id})">
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900 dark:text-white ${task.completed ? 'line-through opacity-50' : ''}">${task.title}</h4>
+              <div class="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+                  </svg>
+                  ${task.course}
+                </span>
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  ${task.dueDate}
+                </span>
+              </div>
+            </div>
+            <button onclick="deleteTask(${task.id})" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group">
+              <svg class="w-4 h-4 text-gray-400 group-hover:text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+            <span class="px-3 py-1 rounded-full text-xs font-medium ${
+              task.priority === 'high' ? 'bg-danger/10 text-danger' :
+              task.priority === 'medium' ? 'bg-accent/10 text-accent' :
+              'bg-success/10 text-success'
+            }">
+              ${task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
+            </span>
+          </div>
+        </div>
+      `}).join('');
+      
+      updateTaskStats();
+    }
+
+    function toggleTask(taskId) {
+      const task = tasks.find(function(t) { return t.id === taskId; });
+      if (task) {
+        task.completed = !task.completed;
+        if (saveTasks()) {
+          renderTaskList();
+          showNotification('更新', task.completed ? '任务已完成' : '任务已恢复', 'success');
+        }
+      }
+    }
+
+    function deleteTask(taskId) {
+      if (confirm('确定要删除这个任务吗？')) {
+        tasks = tasks.filter(function(t) { return t.id !== taskId; });
+        if (saveTasks()) {
+          renderTaskList();
+          showNotification('删除', '任务已删除', 'success');
+        }
+      }
+    }
+
+    function updateTaskStats() {
+      const total = tasks.length;
+      const completed = tasks.filter(function(t) { return t.completed; }).length;
+      const inProgress = total - completed;
+      const high = tasks.filter(function(t) { return t.priority === 'high'; }).length;
+      const medium = tasks.filter(function(t) { return t.priority === 'medium'; }).length;
+      const low = tasks.filter(function(t) { return t.priority === 'low'; }).length;
+      
+      document.getElementById('totalTasks').textContent = total;
+      document.getElementById('completedTasks').textContent = completed;
+      document.getElementById('inProgressTasks').textContent = inProgress;
+      document.getElementById('highPriorityCount').textContent = high;
+      document.getElementById('mediumPriorityCount').textContent = medium;
+      document.getElementById('lowPriorityCount').textContent = low;
+    }
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const isDark = localStorage.getItem('theme') === 'dark' || 
+                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+      
+      themeToggle.addEventListener('click', function() {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initTheme();
+      loadTasks();
+      renderTaskList();
+    });
+  </script>
+</body>
+</html>

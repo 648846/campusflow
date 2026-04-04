@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 文件下载</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .download-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .download-btn {
+      transition: all 0.3s ease;
+    }
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center p-8">
+  <div class="download-card rounded-2xl p-8 max-w-4xl w-full shadow-2xl">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">CampusFlow 文件下载</h1>
+      <p class="text-gray-600">点击下方按钮下载对应的HTML文件</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <a href="dashboard.html" download="dashboard.html" class="download-btn bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 19a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+          </svg>
+          <span>仪表盘</span>
+          <span class="text-sm opacity-75">dashboard.html</span>
+        </div>
+      </a>
+
+      <a href="schedule.html" download="schedule.html" class="download-btn bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 18h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m0 0l-3-3m3 3V8"></path>
+          </svg>
+          <span>课程管理</span>
+          <span class="text-sm opacity-75">schedule.html</span>
+        </div>
+      </a>
+
+      <a href="tasks.html" download="tasks.html" class="download-btn bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012 2v2a2 2 0 012-2h-2m-6 9l2 2 4-4m6 2l-2-2-4 4m2 2h-2a2 2 0 01-2-2v-2a2 2 0 012 2h2a2 2 0 012-2v2a2 2 0 01-2 2h-2m-6 9l2 2 4-4m6 2l-2-2-4 4m2 2h-2a2 2 0 01-2-2v-2a2 2 0 012 2h2a2 2 0 012-2v2a2 2 0 01-2 2h-2"></path>
+          </svg>
+          <span>任务规划</span>
+          <span class="text-sm opacity-75">tasks.html</span>
+        </div>
+      </a>
+
+      <a href="goals.html" download="goals.html" class="download-btn bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2l-2-2-4 4m2 2h-2a2 2 0 01-2-2v-2a2 2 0 012 2h2a2 2 0 012-2v2a2 2 0 01-2 2h-2m-6 9l2 2 4-4m6 2l-2-2-4 4m2 2h-2a2 2 0 01-2-2v-2a2 2 0 012 2h2a2 2 0 012-2v2a2 2 0 01-2 2h-2"></path>
+          </svg>
+          <span>学习目标</span>
+          <span class="text-sm opacity-75">goals.html</span>
+        </div>
+      </a>
+
+      <a href="focus.html" download="focus.html" class="download-btn bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m0 0l-3-3m3 3V8"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5-5 5-5h14a2 2 0 002 2v8a2 2 0 00-2-2H9a2 2 0 00-2 2v-8a2 2 0 00-2 2h-2a2 2 0 012 2h2a2 2 0 012-2v2a2 2 0 01-2 2h-2z"></path>
+          </svg>
+          <span>专注模式</span>
+          <span class="text-sm opacity-75">focus.html</span>
+        </div>
+      </a>
+
+      <a href="preview.html" download="preview.html" class="download-btn bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+        <div class="flex flex-col items-center gap-2">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0V6a3 3 0 013-3 0v6a3 3 0 013 3 0v6a3 3 0 01-3 3h-2a3 3 0 01-3 3v6a3 3 0 013 3 0v6a3 3 0 01-3 3h-2m-6 9l2 2 4-4m6 2l-2-2-4 4m2 2h-2a2 2 0 01-2-2v-2a2 2 0 012 2h2a2 2 0 012-2v2a2 2 0 01-2 2h-2"></path>
+          </svg>
+          <span>在线预览</span>
+          <span class="text-sm opacity-75">preview.html</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a href="." class="text-gray-600 hover:text-gray-800 transition-colors">
+        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        返回主页
+      </a>
+    </div>
+  </div>
+</body>
+</html>

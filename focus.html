@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 专注模式</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            accent: '#f59e0b',
+            success: '#10b981',
+            danger: '#ef4444',
+            dark: '#0f172a',
+            darkLighter: '#1e293b',
+            light: '#f8fafc'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
+            'inner-glow': 'inset 0 0 20px rgba(99, 102, 241, 0.1)'
+          }
+        },
+        darkMode: 'class'
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .glass-dark {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .pulse-glow {
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+      }
+      .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .progress-ring {
+        transition: stroke-dashoffset 0.5s ease;
+      }
+      .nav-item.active button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      }
+      .nav-item button {
+        color: #64748b;
+      }
+      .dark .nav-item button {
+        color: #94a3b8;
+      }
+      .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+      }
+      .dark .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+      }
+      .focus-active {
+        animation: focusPulse 2s ease-in-out infinite;
+      }
+      @keyframes focusPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+      }
+      .badge-shine {
+        animation: shine 2s ease-in-out infinite;
+      }
+      @keyframes shine {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      .sound-wave {
+        animation: wave 1s ease-in-out infinite;
+      }
+      @keyframes wave {
+        0%, 100% { transform: scaleY(1); }
+        50% { transform: scaleY(1.5); }
+      }
+    }
+  </style>
+</head>
+<body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
+  <div class="flex h-screen overflow-hidden">
+    <aside class="w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">CampusFlow</h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400">大学生专属时间规划</p>
+            </div>
+          </div>
+          
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-all hover-lift group">
+            <svg class="w-5 h-5 dark:hidden text-gray-600 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-5 h-5 hidden dark:block text-yellow-300 group-hover:text-yellow-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 space-y-2">
+        <div class="nav-item" data-module="dashboard">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('dashboard.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+            </svg>
+            <span class="font-medium">仪表盘</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="schedule">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="font-medium">课程管理</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="tasks">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('tasks.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <span class="font-medium">任务规划</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="goals">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('goals.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+            <span class="font-medium">学习目标</span>
+          </button>
+        </div>
+
+        <div class="nav-item active" data-module="focus">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('focus.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-medium">专注模式</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="preview">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('preview.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span class="font-medium">在线预览</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="glass dark:glass-dark rounded-xl p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              S
+            </div>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">努力努力再努力</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <p>今日专注: <span class="text-primary font-semibold" id="todayFocusTime">0</span> 分钟</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-6 lg:p-8">
+        <div class="mb-8 slide-up">
+          <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">专注模式</h2>
+          <p class="text-gray-600 dark:text-gray-400">沉浸式学习体验，提升学习效率</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div class="lg:col-span-2">
+            <div class="glass dark:glass-dark rounded-2xl p-8 mb-6" id="focusTimerContainer">
+              <div class="flex flex-col items-center">
+                <div class="relative mb-8">
+                  <svg class="w-64 h-64 transform -rotate-90" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="8" class="text-gray-200 dark:text-gray-700"/>
+                    <circle id="progressCircle" cx="100" cy="100" r="90" fill="none" stroke="url(#gradient)" stroke-width="8" 
+                            stroke-linecap="round" stroke-dasharray="565.48" stroke-dashoffset="0" class="progress-ring"/>
+                    <defs>
+                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#6366f1"/>
+                        <stop offset="100%" stop-color="#8b5cf6"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="timerDisplay" class="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white">25:00</span>
+                    <span id="timerStatus" class="text-sm text-gray-500 dark:text-gray-400 mt-2">准备开始</span>
+                  </div>
+                </div>
+
+                <div class="flex gap-4 mb-6">
+                  <button id="startBtn" onclick="startFocus()" class="px-8 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover-lift shadow-glow flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    开始专注
+                  </button>
+                  <button id="pauseBtn" onclick="pauseFocus()" class="px-8 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover-lift hidden flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    暂停
+                  </button>
+                  <button id="resetBtn" onclick="resetFocus()" class="px-8 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover-lift flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    重置
+                  </button>
+                </div>
+
+                <div class="flex gap-3 flex-wrap justify-center">
+                  <button onclick="setDuration(25)" class="duration-btn px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-all" data-duration="25">25分钟</button>
+                  <button onclick="setDuration(50)" class="duration-btn px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all" data-duration="50">50分钟</button>
+                  <button onclick="openCustomDuration()" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    自定义
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass dark:glass-dark rounded-2xl p-6 mb-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">背景音效</h3>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <button onclick="selectSound('none')" class="sound-btn active p-4 rounded-xl bg-primary/10 border-2 border-primary transition-all hover-lift flex flex-col items-center gap-2" data-sound="none">
+                  <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-primary">静音</span>
+                </button>
+                <button onclick="selectSound('rain')" class="sound-btn p-4 rounded-xl bg-white dark:bg-darkLighter border-2 border-gray-200 dark:border-gray-700 transition-all hover-lift flex flex-col items-center gap-2" data-sound="rain">
+                  <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">雨声</span>
+                </button>
+                <button onclick="selectSound('cafe')" class="sound-btn p-4 rounded-xl bg-white dark:bg-darkLighter border-2 border-gray-200 dark:border-gray-700 transition-all hover-lift flex flex-col items-center gap-2" data-sound="cafe">
+                  <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">咖啡馆</span>
+                </button>
+                <button onclick="selectSound('forest')" class="sound-btn p-4 rounded-xl bg-white dark:bg-darkLighter border-2 border-gray-200 dark:border-gray-700 transition-all hover-lift flex flex-col items-center gap-2" data-sound="forest">
+                  <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">森林</span>
+                </button>
+                <button onclick="selectSound('ocean')" class="sound-btn p-4 rounded-xl bg-white dark:bg-darkLighter border-2 border-gray-200 dark:border-gray-700 transition-all hover-lift flex flex-col items-center gap-2" data-sound="ocean">
+                  <svg class="w-8 h-8 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">海浪</span>
+                </button>
+                <button onclick="selectSound('fire')" class="sound-btn p-4 rounded-xl bg-white dark:bg-darkLighter border-2 border-gray-200 dark:border-gray-700 transition-all hover-lift flex flex-col items-center gap-2" data-sound="fire">
+                  <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">篝火</span>
+                </button>
+              </div>
+              <div class="mt-4 flex items-center gap-4">
+                <span class="text-sm text-gray-600 dark:text-gray-400">音量</span>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary">
+                <span id="volumeValue" class="text-sm font-medium text-gray-900 dark:text-white w-12">50%</span>
+              </div>
+            </div>
+
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">专注设置</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">专注期间屏蔽通知</span>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="blockNotifications" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">专注完成时播放提示音</span>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="playCompletionSound" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">专注完成自动休息</span>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="autoBreak" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">今日统计</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">专注次数</span>
+                  <span class="text-2xl font-bold text-gray-900 dark:text-white" id="todaySessions">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">总时长</span>
+                  <span class="text-2xl font-bold text-primary" id="todayTotalTime">0分钟</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">最长专注</span>
+                  <span class="text-2xl font-bold text-gray-900 dark:text-white" id="todayLongestSession">0分钟</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">成就徽章</h3>
+              <div class="grid grid-cols-3 gap-3" id="badgeContainer">
+              </div>
+            </div>
+
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">历史记录</h3>
+              <div class="space-y-3 max-h-64 overflow-y-auto" id="historyContainer">
+                <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">暂无专注记录</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="customDurationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="glass dark:glass-dark rounded-2xl p-6 w-full max-w-md mx-4 slide-up">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">自定义专注时长</h3>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">时长（分钟）</label>
+        <input type="number" id="customDurationInput" min="1" max="120" value="30" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeCustomDuration()" class="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">取消</button>
+        <button onclick="applyCustomDuration()" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium hover-lift shadow-glow">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="completionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="glass dark:glass-dark rounded-2xl p-8 w-full max-w-md mx-4 slide-up text-center">
+      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-success to-success/70 flex items-center justify-center badge-shine">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">专注完成！</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">恭喜你完成了一次专注，继续保持！</p>
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="p-4 rounded-xl bg-primary/10">
+          <p class="text-sm text-gray-600 dark:text-gray-400">本次专注</p>
+          <p class="text-2xl font-bold text-primary" id="completionDuration">25分钟</p>
+        </div>
+        <div class="p-4 rounded-xl bg-success/10">
+          <p class="text-sm text-gray-600 dark:text-gray-400">今日总计</p>
+          <p class="text-2xl font-bold text-success" id="completionTotal">25分钟</p>
+        </div>
+      </div>
+      <button onclick="closeCompletionModal()" class="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover-lift shadow-glow">太棒了！</button>
+    </div>
+  </div>
+
+  <script>
+    let focusDuration = 25;
+    let timeRemaining = 25 * 60;
+    let timerInterval = null;
+    let isRunning = false;
+    let isPaused = false;
+    let currentSound = 'none';
+    let audioContext = null;
+    let audioSource = null;
+    let gainNode = null;
+
+    const badges = [
+      { id: 'first', name: '初次尝试', icon: '🎯', description: '完成第一次专注', unlocked: false },
+      { id: 'three', name: '三连胜', icon: '🔥', description: '连续完成3次专注', unlocked: false },
+      { id: 'hour', name: '一小时', icon: '⏰', description: '单次专注达到1小时', unlocked: false },
+      { id: 'daily', name: '日积月累', icon: '📅', description: '单日专注达到2小时', unlocked: false },
+      { id: 'week', name: '坚持不懈', icon: '🏆', description: '连续7天使用专注模式', unlocked: false },
+      { id: 'master', name: '专注大师', icon: '👑', description: '累计专注达到10小时', unlocked: false }
+    ];
+
+    function initFocusMode() {
+      loadSettings();
+      loadStats();
+      loadBadges();
+      renderBadges();
+      renderHistory();
+      updateTodayStats();
+      initVolumeControl();
+    }
+
+    function loadSettings() {
+      const savedDuration = localStorage.getItem('focusDuration');
+      if (savedDuration) {
+        focusDuration = parseInt(savedDuration);
+        timeRemaining = focusDuration * 60;
+        updateTimerDisplay();
+        updateDurationButtons();
+      }
+
+      const savedSound = localStorage.getItem('focusSound');
+      if (savedSound) {
+        currentSound = savedSound;
+        updateSoundButtons();
+      }
+
+      const savedVolume = localStorage.getItem('focusVolume');
+      if (savedVolume) {
+        document.getElementById('volumeSlider').value = savedVolume;
+        document.getElementById('volumeValue').textContent = savedVolume + '%';
+      }
+
+      const blockNotif = localStorage.getItem('blockNotifications');
+      if (blockNotif !== null) {
+        document.getElementById('blockNotifications').checked = blockNotif === 'true';
+      }
+
+      const playSound = localStorage.getItem('playCompletionSound');
+      if (playSound !== null) {
+        document.getElementById('playCompletionSound').checked = playSound === 'true';
+      }
+
+      const autoBreak = localStorage.getItem('autoBreak');
+      if (autoBreak !== null) {
+        document.getElementById('autoBreak').checked = autoBreak === 'true';
+      }
+    }
+
+    function saveSettings() {
+      localStorage.setItem('focusDuration', focusDuration);
+      localStorage.setItem('focusSound', currentSound);
+      localStorage.setItem('focusVolume', document.getElementById('volumeSlider').value);
+      localStorage.setItem('blockNotifications', document.getElementById('blockNotifications').checked);
+      localStorage.setItem('playCompletionSound', document.getElementById('playCompletionSound').checked);
+      localStorage.setItem('autoBreak', document.getElementById('autoBreak').checked);
+    }
+
+    function loadStats() {
+      const stats = JSON.parse(localStorage.getItem('focusStats') || '{}');
+      return stats;
+    }
+
+    function saveStats(stats) {
+      localStorage.setItem('focusStats', JSON.stringify(stats));
+    }
+
+    function loadBadges() {
+      const savedBadges = JSON.parse(localStorage.getItem('focusBadges') || '[]');
+      badges.forEach(badge => {
+        if (savedBadges.includes(badge.id)) {
+          badge.unlocked = true;
+        }
+      });
+    }
+
+    function saveBadges() {
+      const unlockedIds = badges.filter(b => b.unlocked).map(b => b.id);
+      localStorage.setItem('focusBadges', JSON.stringify(unlockedIds));
+    }
+
+    function unlockBadge(badgeId) {
+      const badge = badges.find(b => b.id === badgeId);
+      if (badge && !badge.unlocked) {
+        badge.unlocked = true;
+        saveBadges();
+        renderBadges();
+      }
+    }
+
+    function renderBadges() {
+      const container = document.getElementById('badgeContainer');
+      container.innerHTML = badges.map(badge => `
+        <div class="text-center p-3 rounded-xl ${badge.unlocked ? 'bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20' : 'bg-gray-100 dark:bg-gray-800 opacity-50'} transition-all hover-lift">
+          <div class="text-3xl mb-1 ${badge.unlocked ? 'badge-shine' : 'grayscale'}">${badge.icon}</div>
+          <p class="text-xs font-medium ${badge.unlocked ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}">${badge.name}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyContainer');
+      const history = JSON.parse(localStorage.getItem('focusHistory') || '[]');
+      
+      if (history.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">暂无专注记录</p>';
+        return;
+      }
+
+      const recentHistory = history.slice(-10).reverse();
+      container.innerHTML = recentHistory.map(record => `
+        <div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">${record.duration}分钟</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${record.date}</p>
+            </div>
+          </div>
+          <span class="text-xs px-2 py-1 rounded-full bg-success/10 text-success">完成</span>
+        </div>
+      `).join('');
+    }
+
+    function updateTodayStats() {
+      const stats = loadStats();
+      const today = new Date().toDateString();
+      const todayStats = stats[today] || { sessions: 0, totalTime: 0, longestSession: 0 };
+
+      document.getElementById('todaySessions').textContent = todayStats.sessions;
+      document.getElementById('todayTotalTime').textContent = todayStats.totalTime + '分钟';
+      document.getElementById('todayLongestSession').textContent = todayStats.longestSession + '分钟';
+      document.getElementById('todayFocusTime').textContent = todayStats.totalTime;
+    }
+
+    function setDuration(minutes) {
+      if (isRunning) return;
+      
+      focusDuration = minutes;
+      timeRemaining = minutes * 60;
+      updateTimerDisplay();
+      updateDurationButtons();
+      saveSettings();
+    }
+
+    function updateDurationButtons() {
+      document.querySelectorAll('.duration-btn').forEach(btn => {
+        const duration = parseInt(btn.dataset.duration);
+        if (duration === focusDuration) {
+          btn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+          btn.classList.add('bg-primary/10', 'text-primary');
+        } else {
+          btn.classList.remove('bg-primary/10', 'text-primary');
+          btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+        }
+      });
+    }
+
+    function openCustomDuration() {
+      document.getElementById('customDurationModal').classList.remove('hidden');
+      document.getElementById('customDurationInput').value = focusDuration;
+    }
+
+    function closeCustomDuration() {
+      document.getElementById('customDurationModal').classList.add('hidden');
+    }
+
+    function applyCustomDuration() {
+      const customMinutes = parseInt(document.getElementById('customDurationInput').value);
+      if (customMinutes >= 1 && customMinutes <= 120) {
+        setDuration(customMinutes);
+        closeCustomDuration();
+      }
+    }
+
+    function selectSound(sound) {
+      currentSound = sound;
+      updateSoundButtons();
+      saveSettings();
+      
+      if (isRunning && currentSound !== 'none') {
+        playSoundEffect();
+      } else if (!isRunning) {
+        stopSoundEffect();
+      }
+    }
+
+    function updateSoundButtons() {
+      document.querySelectorAll('.sound-btn').forEach(btn => {
+        const sound = btn.dataset.sound;
+        if (sound === currentSound) {
+          btn.classList.add('active', 'bg-primary/10', 'border-primary');
+          btn.classList.remove('bg-white', 'dark:bg-darkLighter', 'border-gray-200', 'dark:border-gray-700');
+        } else {
+          btn.classList.remove('active', 'bg-primary/10', 'border-primary');
+          btn.classList.add('bg-white', 'dark:bg-darkLighter', 'border-gray-200', 'dark:border-gray-700');
+        }
+      });
+    }
+
+    function initVolumeControl() {
+      const volumeSlider = document.getElementById('volumeSlider');
+      const volumeValue = document.getElementById('volumeValue');
+      
+      volumeSlider.addEventListener('input', (e) => {
+        const volume = e.target.value;
+        volumeValue.textContent = volume + '%';
+        saveSettings();
+        
+        if (gainNode) {
+          gainNode.gain.value = volume / 100;
+        }
+      });
+    }
+
+    function playSoundEffect() {
+      if (currentSound === 'none') return;
+
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+
+        stopSoundEffect();
+
+        const bufferSize = 2 * audioContext.sampleRate;
+        const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+
+        const soundTypes = {
+          'rain': { type: 'pink', lowFreq: 400, highFreq: 1200, volume: 0.3 },
+          'cafe': { type: 'brown', lowFreq: 100, highFreq: 800, volume: 0.25 },
+          'forest': { type: 'pink', lowFreq: 200, highFreq: 1000, volume: 0.2 },
+          'ocean': { type: 'brown', lowFreq: 50, highFreq: 500, volume: 0.35 },
+          'fire': { type: 'pink', lowFreq: 80, highFreq: 400, volume: 0.15 }
+        };
+
+        const soundConfig = soundTypes[currentSound] || soundTypes['rain'];
+
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        let lastOut = 0;
+
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          
+          if (soundConfig.type === 'white') {
+            output[i] = white;
+          } else if (soundConfig.type === 'pink') {
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            output[i] = soundConfig.volume * (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362);
+          } else if (soundConfig.type === 'brown') {
+            lastOut = (lastOut + (0.02 * white)) / 1.02;
+            output[i] = lastOut * 3.5;
+          }
+        }
+
+        const noiseSource = audioContext.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+        noiseSource.loop = true;
+
+        gainNode = audioContext.createGain();
+        const volume = parseInt(document.getElementById('volumeSlider').value) / 100;
+        gainNode.gain.value = volume * soundConfig.volume;
+
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = (soundConfig.lowFreq + soundConfig.highFreq) / 2;
+        filter.Q.value = 1;
+
+        noiseSource.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        noiseSource.start();
+        audioSource = noiseSource;
+
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
+    }
+
+    function stopSoundEffect() {
+      if (audioSource) {
+        try {
+          audioSource.stop();
+          audioSource.disconnect();
+        } catch (error) {
+          console.error('Error stopping sound:', error);
+        }
+        audioSource = null;
+      }
+    }
+
+    function startFocus() {
+      if (isRunning && !isPaused) return;
+
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (document.getElementById('blockNotifications').checked) {
+        if ('Notification' in window) {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification('专注模式', {
+                body: '已开启专注模式，通知将被屏蔽',
+                icon: '/favicon.ico'
+              });
+            }
+          });
+        }
+      }
+
+      isRunning = true;
+      isPaused = false;
+
+      document.getElementById('startBtn').classList.add('hidden');
+      document.getElementById('pauseBtn').classList.remove('hidden');
+      document.getElementById('timerStatus').textContent = '专注中...';
+      document.getElementById('focusTimerContainer').classList.add('focus-active');
+
+      if (currentSound !== 'none') {
+        playSoundEffect();
+      }
+
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        updateProgressCircle();
+
+        if (timeRemaining <= 0) {
+          completeFocus();
+        }
+      }, 1000);
+    }
+
+    function pauseFocus() {
+      if (!isRunning || isPaused) return;
+
+      isPaused = true;
+      clearInterval(timerInterval);
+      stopSoundEffect();
+
+      document.getElementById('startBtn').classList.remove('hidden');
+      document.getElementById('pauseBtn').classList.add('hidden');
+      document.getElementById('timerStatus').textContent = '已暂停';
+      document.getElementById('focusTimerContainer').classList.remove('focus-active');
+    }
+
+    function resetFocus() {
+      clearInterval(timerInterval);
+      stopSoundEffect();
+      
+      isRunning = false;
+      isPaused = false;
+      timeRemaining = focusDuration * 60;
+
+      document.getElementById('startBtn').classList.remove('hidden');
+      document.getElementById('pauseBtn').classList.add('hidden');
+      document.getElementById('timerStatus').textContent = '准备开始';
+      document.getElementById('focusTimerContainer').classList.remove('focus-active');
+
+      updateTimerDisplay();
+      updateProgressCircle();
+    }
+
+    function completeFocus() {
+      clearInterval(timerInterval);
+      stopSoundEffect();
+
+      const completedDuration = focusDuration;
+      const stats = loadStats();
+      const today = new Date().toDateString();
+
+      if (!stats[today]) {
+        stats[today] = { sessions: 0, totalTime: 0, longestSession: 0 };
+      }
+
+      stats[today].sessions++;
+      stats[today].totalTime += completedDuration;
+      stats[today].longestSession = Math.max(stats[today].longestSession, completedDuration);
+
+      saveStats(stats);
+
+      const history = JSON.parse(localStorage.getItem('focusHistory') || '[]');
+      history.push({
+        duration: completedDuration,
+        date: new Date().toLocaleString('zh-CN'),
+        timestamp: Date.now()
+      });
+      localStorage.setItem('focusHistory', JSON.stringify(history));
+
+      if (document.getElementById('playCompletionSound').checked) {
+        playCompletionSound();
+      }
+
+      checkBadges(stats, history);
+
+      updateTodayStats();
+      renderHistory();
+
+      document.getElementById('completionDuration').textContent = completedDuration + '分钟';
+      document.getElementById('completionTotal').textContent = stats[today].totalTime + '分钟';
+      document.getElementById('completionModal').classList.remove('hidden');
+
+      resetFocus();
+    }
+
+    function playCompletionSound() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 523.25;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.3;
+
+        oscillator.start();
+        setTimeout(() => {
+          oscillator.frequency.value = 659.25;
+        }, 200);
+        setTimeout(() => {
+          oscillator.frequency.value = 783.99;
+        }, 400);
+        setTimeout(() => {
+          oscillator.stop();
+        }, 600);
+      } catch (error) {
+        console.error('Error playing completion sound:', error);
+      }
+    }
+
+    function checkBadges(stats, history) {
+      const today = new Date().toDateString();
+      const todayStats = stats[today] || { sessions: 0, totalTime: 0, longestSession: 0 };
+
+      if (history.length >= 1) {
+        unlockBadge('first');
+      }
+
+      if (todayStats.sessions >= 3) {
+        unlockBadge('three');
+      }
+
+      if (todayStats.longestSession >= 60) {
+        unlockBadge('hour');
+      }
+
+      if (todayStats.totalTime >= 120) {
+        unlockBadge('daily');
+      }
+
+      const uniqueDays = new Set(history.map(h => new Date(h.timestamp).toDateString())).size;
+      if (uniqueDays >= 7) {
+        unlockBadge('week');
+      }
+
+      const totalFocusTime = Object.values(stats).reduce((sum, day) => sum + day.totalTime, 0);
+      if (totalFocusTime >= 600) {
+        unlockBadge('master');
+      }
+    }
+
+    function closeCompletionModal() {
+      document.getElementById('completionModal').classList.add('hidden');
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      document.getElementById('timerDisplay').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateProgressCircle() {
+      const circle = document.getElementById('progressCircle');
+      const circumference = 2 * Math.PI * 90;
+      const progress = timeRemaining / (focusDuration * 60);
+      const offset = circumference * (1 - progress);
+      circle.style.strokeDashoffset = offset;
+    }
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const isDark = localStorage.getItem('theme') === 'dark' || 
+                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initFocusMode();
+    });
+  </script>
+</body>
+</html>

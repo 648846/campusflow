@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 在线预览</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            accent: '#f59e0b',
+            success: '#10b981',
+            danger: '#ef4444',
+            dark: '#0f172a',
+            darkLighter: '#1e293b',
+            light: '#f8fafc'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
+            'inner-glow': 'inset 0 0 20px rgba(99, 102, 241, 0.1)'
+          }
+        },
+        darkMode: 'class'
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .glass-dark {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .pulse-glow {
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+      }
+      .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .nav-item.active button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      }
+      .nav-item button {
+        color: #64748b;
+      }
+      .dark .nav-item button {
+        color: #94a3b8;
+      }
+      .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+      }
+      .dark .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+      }
+      .drop-zone {
+        transition: all 0.3s ease;
+      }
+      .drop-zone.drag-over {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+      }
+      .preview-container {
+        overflow: hidden;
+        position: relative;
+      }
+      .preview-content {
+        transition: transform 0.3s ease;
+        transform-origin: center center;
+      }
+      .loading-spinner {
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    }
+  </style>
+</head>
+<body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
+  <div class="flex h-screen overflow-hidden">
+    <aside class="w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">CampusFlow</h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400">大学生专属时间规划</p>
+            </div>
+          </div>
+          
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-all hover-lift group">
+            <svg class="w-5 h-5 dark:hidden text-gray-600 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-5 h-5 hidden dark:block text-yellow-300 group-hover:text-yellow-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 space-y-2">
+        <div class="nav-item" data-module="dashboard">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('dashboard.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+            </svg>
+            <span class="font-medium">仪表盘</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="schedule">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="font-medium">课程管理</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="tasks">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('tasks.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <span class="font-medium">任务规划</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="goals">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('goals.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+            <span class="font-medium">学习目标</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="focus">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('focus.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-medium">专注模式</span>
+          </button>
+        </div>
+
+        <div class="nav-item active" data-module="preview">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('preview.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span class="font-medium">在线预览</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="glass dark:glass-dark rounded-xl p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              S
+            </div>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">努力努力再努力</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-6 lg:p-8">
+        <div class="mb-8 slide-up">
+          <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">在线预览</h2>
+          <p class="text-gray-600 dark:text-gray-400">上传文件进行实时预览，支持多种格式</p>
+        </div>
+
+        <div class="glass dark:glass-dark rounded-2xl p-8 mb-6">
+          <div id="dropZone" class="drop-zone border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center cursor-pointer hover:border-primary transition-all">
+            <input type="file" id="fileInput" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp,.mp4,.webm,.ogg,.mp3,.wav,.txt,.md,.json,.xml,.html,.css,.js">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">拖放文件到此处</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">或点击选择文件</p>
+                <div class="flex flex-wrap gap-2 justify-center">
+                  <span class="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary">PDF</span>
+                  <span class="text-xs px-3 py-1 rounded-full bg-secondary/10 text-secondary">图片</span>
+                  <span class="text-xs px-3 py-1 rounded-full bg-accent/10 text-accent">视频</span>
+                  <span class="text-xs px-3 py-1 rounded-full bg-success/10 text-success">音频</span>
+                  <span class="text-xs px-3 py-1 rounded-full bg-danger/10 text-danger">文本</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="previewSection" class="hidden">
+          <div class="glass dark:glass-dark rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <svg id="fileIcon" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 id="fileName" class="font-semibold text-gray-900 dark:text-white">文件名</h3>
+                  <p id="fileSize" class="text-sm text-gray-500 dark:text-gray-400">文件大小</p>
+                </div>
+              </div>
+              <button onclick="closePreview()" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div id="controlsBar" class="flex items-center gap-2 mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+              <button onclick="zoomOut()" class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-all" title="缩小">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
+              </button>
+              <button onclick="zoomIn()" class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-all" title="放大">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </button>
+              <span id="zoomLevel" class="text-sm font-medium text-gray-900 dark:text-white min-w-[60px] text-center">100%</span>
+              <div class="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+              <button onclick="resetZoom()" class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-all" title="重置">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+              </button>
+              <button onclick="toggleFullscreen()" class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-all" title="全屏">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5-5m11 1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+              </button>
+              <div id="pageNavigation" class="hidden flex items-center gap-2 ml-auto">
+                <button onclick="prevPage()" class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-all" title="上一页">
+                  <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                <span id="pageInfo" class="text-sm font-medium text-gray-900 dark:text-white min-w-[80px] text-center">1 / 1</span>
+                <button onclick="nextPage()" class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-all" title="下一页">
+                  <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div id="previewContainer" class="preview-container bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden" style="height: 600px;">
+              <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 dark:bg-dark/80 flex items-center justify-center z-10">
+                <div class="flex flex-col items-center gap-4">
+                  <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full loading-spinner"></div>
+                  <p class="text-gray-600 dark:text-gray-400">加载中...</p>
+                </div>
+              </div>
+              <div id="previewContent" class="preview-content w-full h-full flex items-center justify-center">
+              </div>
+            </div>
+          </div>
+
+          <div class="glass dark:glass-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">文件信息</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="p-4 rounded-xl bg-gray-100 dark:bg-gray-800">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">文件类型</p>
+                <p id="fileType" class="font-semibold text-gray-900 dark:text-white">-</p>
+              </div>
+              <div class="p-4 rounded-xl bg-gray-100 dark:bg-gray-800">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">文件大小</p>
+                <p id="fileSizeInfo" class="font-semibold text-gray-900 dark:text-white">-</p>
+              </div>
+              <div class="p-4 rounded-xl bg-gray-100 dark:bg-gray-800">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">最后修改</p>
+                <p id="lastModified" class="font-semibold text-gray-900 dark:text-white">-</p>
+              </div>
+              <div class="p-4 rounded-xl bg-gray-100 dark:bg-gray-800">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">页数/时长</p>
+                <p id="durationInfo" class="font-semibold text-gray-900 dark:text-white">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="errorSection" class="hidden glass dark:glass-dark rounded-2xl p-8 text-center">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-danger/10 flex items-center justify-center">
+            <svg class="w-10 h-10 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">无法预览此文件</h3>
+          <p id="errorMessage" class="text-gray-600 dark:text-gray-400 mb-6">文件格式不支持或文件已损坏</p>
+          <button onclick="resetPreview()" class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover-lift shadow-glow">
+            选择其他文件
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let currentFile = null;
+    let currentScale = 1;
+    let currentRotation = 0;
+    let pdfDoc = null;
+    let currentPage = 1;
+    let totalPages = 0;
+    let isDragging = false;
+    let startX, startY, scrollLeft, scrollTop;
+
+    function initPreview() {
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+
+      dropZone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', handleFileSelect);
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFile(files[0]);
+        }
+      });
+
+      initPanAndZoom();
+    }
+
+    function handleFileSelect(e) {
+      const files = e.target.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    }
+
+    function handleFile(file) {
+      currentFile = file;
+      showLoading();
+
+      const fileName = file.name;
+      const fileSize = formatFileSize(file.size);
+      const fileType = file.type;
+      const lastModified = new Date(file.lastModified).toLocaleString('zh-CN');
+
+      document.getElementById('fileName').textContent = fileName;
+      document.getElementById('fileSize').textContent = fileSize;
+      document.getElementById('fileType').textContent = fileType || '未知';
+      document.getElementById('fileSizeInfo').textContent = fileSize;
+      document.getElementById('lastModified').textContent = lastModified;
+
+      const extension = fileName.split('.').pop().toLowerCase();
+
+      if (extension === 'pdf') {
+        renderPDF(file);
+      } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension)) {
+        renderImage(file);
+      } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
+        renderVideo(file);
+      } else if (['mp3', 'wav'].includes(extension)) {
+        renderAudio(file);
+      } else if (['txt', 'md', 'json', 'xml', 'html', 'css', 'js'].includes(extension)) {
+        renderText(file);
+      } else {
+        showError('不支持的文件格式');
+      }
+    }
+
+    function showLoading() {
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      document.getElementById('previewSection').classList.remove('hidden');
+      document.getElementById('errorSection').classList.add('hidden');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+
+    async function renderPDF(file) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
+        totalPages = pdfDoc.numPages;
+        currentPage = 1;
+
+        document.getElementById('pageNavigation').classList.remove('hidden');
+        document.getElementById('durationInfo').textContent = totalPages + ' 页';
+
+        await renderPDFPage(currentPage);
+        hideLoading();
+      } catch (error) {
+        console.error('PDF rendering error:', error);
+        showError('无法加载PDF文件: ' + error.message);
+      }
+    }
+
+    async function renderPDFPage(pageNum) {
+      try {
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: currentScale });
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+
+        const previewContent = document.getElementById('previewContent');
+        previewContent.innerHTML = '';
+        previewContent.appendChild(canvas);
+
+        updatePageInfo();
+      } catch (error) {
+        console.error('PDF page rendering error:', error);
+        showError('无法渲染PDF页面: ' + error.message);
+      }
+    }
+
+    function renderImage(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'max-w-full max-h-full object-contain';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+
+        const previewContent = document.getElementById('previewContent');
+        previewContent.innerHTML = '';
+        previewContent.appendChild(img);
+
+        document.getElementById('pageNavigation').classList.add('hidden');
+        document.getElementById('durationInfo').textContent = '-';
+        hideLoading();
+      };
+      reader.onerror = () => showError('无法加载图片文件');
+      reader.readAsDataURL(file);
+    }
+
+    function renderVideo(file) {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement('video');
+      video.src = url;
+      video.className = 'max-w-full max-h-full';
+      video.controls = true;
+      video.style.maxWidth = '100%';
+      video.style.maxHeight = '100%';
+
+      const previewContent = document.getElementById('previewContent');
+      previewContent.innerHTML = '';
+      previewContent.appendChild(video);
+
+      document.getElementById('pageNavigation').classList.add('hidden');
+      document.getElementById('durationInfo').textContent = '视频';
+
+      video.onloadedmetadata = () => {
+        const duration = formatDuration(video.duration);
+        document.getElementById('durationInfo').textContent = duration;
+        hideLoading();
+      };
+
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        showError('无法加载视频文件');
+      };
+    }
+
+    function renderAudio(file) {
+      const url = URL.createObjectURL(file);
+      const audio = document.createElement('audio');
+      audio.src = url;
+      audio.controls = true;
+      audio.className = 'w-full';
+
+      const previewContent = document.getElementById('previewContent');
+      previewContent.innerHTML = '';
+      
+      const container = document.createElement('div');
+      container.className = 'flex flex-col items-center justify-center w-full h-full p-8';
+      
+      const icon = document.createElement('div');
+      icon.className = 'w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-6';
+      icon.innerHTML = '<svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>';
+      
+      container.appendChild(icon);
+      container.appendChild(audio);
+      previewContent.appendChild(container);
+
+      document.getElementById('pageNavigation').classList.add('hidden');
+      document.getElementById('durationInfo').textContent = '音频';
+
+      audio.onloadedmetadata = () => {
+        const duration = formatDuration(audio.duration);
+        document.getElementById('durationInfo').textContent = duration;
+        hideLoading();
+      };
+
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        showError('无法加载音频文件');
+      };
+    }
+
+    function renderText(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        const previewContent = document.getElementById('previewContent');
+        
+        const pre = document.createElement('pre');
+        pre.className = 'w-full h-full overflow-auto p-4 text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap';
+        pre.style.maxWidth = '100%';
+        pre.style.maxHeight = '100%';
+        pre.textContent = content;
+
+        previewContent.innerHTML = '';
+        previewContent.appendChild(pre);
+
+        document.getElementById('pageNavigation').classList.add('hidden');
+        document.getElementById('durationInfo').textContent = content.split('\n').length + ' 行';
+        hideLoading();
+      };
+      reader.onerror = () => showError('无法加载文本文件');
+      reader.readAsText(file);
+    }
+
+    function showError(message) {
+      hideLoading();
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('previewSection').classList.add('hidden');
+      document.getElementById('errorSection').classList.remove('hidden');
+    }
+
+    function closePreview() {
+      document.getElementById('previewSection').classList.add('hidden');
+      document.getElementById('errorSection').classList.add('hidden');
+      document.getElementById('fileInput').value = '';
+      currentFile = null;
+      resetZoom();
+    }
+
+    function resetPreview() {
+      closePreview();
+    }
+
+    function zoomIn() {
+      if (currentScale < 3) {
+        currentScale += 0.25;
+        updateZoom();
+        if (pdfDoc) {
+          renderPDFPage(currentPage);
+        }
+      }
+    }
+
+    function zoomOut() {
+      if (currentScale > 0.25) {
+        currentScale -= 0.25;
+        updateZoom();
+        if (pdfDoc) {
+          renderPDFPage(currentPage);
+        }
+      }
+    }
+
+    function resetZoom() {
+      currentScale = 1;
+      updateZoom();
+      if (pdfDoc) {
+        renderPDFPage(currentPage);
+      }
+    }
+
+    function updateZoom() {
+      const previewContent = document.getElementById('previewContent');
+      previewContent.style.transform = `scale(${currentScale})`;
+      document.getElementById('zoomLevel').textContent = Math.round(currentScale * 100) + '%';
+    }
+
+    function initPanAndZoom() {
+      const container = document.getElementById('previewContainer');
+      const content = document.getElementById('previewContent');
+
+      container.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'CANVAS' || e.target.tagName === 'IMG' || e.target.tagName === 'PRE') {
+          isDragging = true;
+          startX = e.pageX - container.offsetLeft;
+          startY = e.pageY - container.offsetTop;
+          scrollLeft = container.scrollLeft;
+          scrollTop = container.scrollTop;
+          content.style.cursor = 'grabbing';
+        }
+      });
+
+      container.addEventListener('mouseleave', () => {
+        isDragging = false;
+        content.style.cursor = 'grab';
+      });
+
+      container.addEventListener('mouseup', () => {
+        isDragging = false;
+        content.style.cursor = 'grab';
+      });
+
+      container.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const y = e.pageY - container.offsetTop;
+        const walkX = (x - startX) * 1;
+        const walkY = (y - startY) * 1;
+        container.scrollLeft = scrollLeft - walkX;
+        container.scrollTop = scrollTop - walkY;
+      });
+
+      container.addEventListener('wheel', (e) => {
+        if (e.ctrlKey) {
+          e.preventDefault();
+          if (e.deltaY < 0) {
+            zoomIn();
+          } else {
+            zoomOut();
+          }
+        }
+      });
+
+      content.style.cursor = 'grab';
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPDFPage(currentPage);
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPDFPage(currentPage);
+      }
+    }
+
+    function updatePageInfo() {
+      document.getElementById('pageInfo').textContent = `${currentPage} / ${totalPages}`;
+    }
+
+    function toggleFullscreen() {
+      const container = document.getElementById('previewContainer');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+          console.error('Fullscreen error:', err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    function formatDuration(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+
+      if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+      return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const isDark = localStorage.getItem('theme') === 'dark' || 
+                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initPreview();
+    });
+  </script>
+</body>
+</html>

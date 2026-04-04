@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 仪表盘</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            accent: '#f59e0b',
+            success: '#10b981',
+            danger: '#ef4444',
+            dark: '#0f172a',
+            darkLighter: '#1e293b',
+            light: '#f8fafc'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
+            'inner-glow': 'inset 0 0 20px rgba(99, 102, 241, 0.1)'
+          }
+        },
+        darkMode: 'class'
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .glass-dark {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .pulse-glow {
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+      }
+      .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .stat-card {
+        transition: all 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      }
+      .progress-ring {
+        transition: stroke-dashoffset 0.5s ease;
+      }
+      .nav-item.active button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      }
+      .nav-item button {
+        color: #64748b;
+      }
+      .dark .nav-item button {
+        color: #94a3b8;
+      }
+      .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+      }
+      .dark .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+      }
+      .course-card {
+        transition: all 0.3s ease;
+      }
+      .course-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+      .category-badge {
+        transition: all 0.2s ease;
+      }
+      .category-badge:hover {
+        transform: scale(1.05);
+      }
+    }
+  </style>
+</head>
+<body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
+  <div class="flex h-screen overflow-hidden">
+    <aside class="w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">CampusFlow</h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400">大学生专属时间规划</p>
+            </div>
+          </div>
+          
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-all hover-lift group">
+            <svg class="w-5 h-5 dark:hidden text-gray-600 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-5 h-5 hidden dark:block text-yellow-300 group-hover:text-yellow-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 space-y-2">
+        <div class="nav-item active" data-module="dashboard">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('dashboard.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+            </svg>
+            <span class="font-medium">仪表盘</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="schedule">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="font-medium">课程管理</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="tasks">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('tasks.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <span class="font-medium">任务规划</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="goals">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('goals.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+            <span class="font-medium">学习目标</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="focus">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('focus.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-medium">专注模式</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="preview">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('preview.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span class="font-medium">在线预览</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="glass dark:glass-dark rounded-xl p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              S
+            </div>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">努力努力再努力</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <p>本周学习时长: <span class="text-primary font-semibold">12.5小时</span></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-6 lg:p-8">
+        <div class="mb-8 slide-up">
+          <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">学习仪表盘</h2>
+          <p class="text-gray-600 dark:text-gray-400">欢迎回来！这是您的学习概览</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-success bg-success/10 px-3 py-1 rounded-full">+12%</span>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">24</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">总课程数</p>
+          </div>
+
+          <div class="stat-card glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-success bg-success/10 px-3 py-1 rounded-full">+8%</span>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">156h</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">学习时长</p>
+          </div>
+
+          <div class="stat-card glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-success bg-success/10 px-3 py-1 rounded-full">+15%</span>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">18</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">已完成任务</p>
+          </div>
+
+          <div class="stat-card glass dark:glass-dark rounded-2xl p-6 hover-lift">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-success to-success/70 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-accent bg-accent/10 px-3 py-1 rounded-full">进行中</span>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">78%</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">整体进度</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div class="lg:col-span-2 glass dark:glass-dark rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">学习进度趋势</h3>
+              <select class="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-darkLighter text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
+                <option>本周</option>
+                <option>本月</option>
+                <option>本学期</option>
+              </select>
+            </div>
+            <div class="h-64">
+              <canvas id="progressChart"></canvas>
+            </div>
+          </div>
+
+          <div class="glass dark:glass-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">课程分类</h3>
+            <div class="h-64">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div class="glass dark:glass-dark rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">今日课程</h3>
+              <button class="text-sm text-primary hover:text-secondary transition-colors">查看全部</button>
+            </div>
+            <div class="space-y-4" id="todayCourses">
+            </div>
+          </div>
+
+          <div class="glass dark:glass-dark rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">最近访问</h3>
+              <button class="text-sm text-primary hover:text-secondary transition-colors">查看全部</button>
+            </div>
+            <div class="space-y-4" id="recentCourses">
+            </div>
+          </div>
+        </div>
+
+        <div class="glass dark:glass-dark rounded-2xl p-6 mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">推荐课程</h3>
+            <button class="text-sm text-primary hover:text-secondary transition-colors">查看更多</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="recommendedCourses">
+          </div>
+        </div>
+
+        <div class="glass dark:glass-dark rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">学习进度统计</h3>
+            <div class="flex gap-2">
+              <button class="category-badge text-xs px-3 py-1 rounded-full bg-primary text-white" onclick="filterCourses('all')">全部</button>
+              <button class="category-badge text-xs px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300" onclick="filterCourses('completed')">已完成</button>
+              <button class="category-badge text-xs px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300" onclick="filterCourses('inprogress')">进行中</button>
+              <button class="category-badge text-xs px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300" onclick="filterCourses('notstarted')">未开始</button>
+            </div>
+          </div>
+          <div class="space-y-4" id="progressList">
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const courses = [
+      { id: 1, name: '数据结构与算法', category: '物联网工程', progress: 85, time: '09:00', location: 'A101', color: 'from-blue-500 to-blue-600' },
+      { id: 2, name: '线性代数', category: '数学', progress: 72, time: '10:30', location: 'B203', color: 'from-purple-500 to-purple-600' },
+      { id: 3, name: '计算机网络', category: '物联网工程', progress: 60, time: '14:00', location: 'A205', color: 'from-green-500 to-green-600' },
+      { id: 4, name: '数据库原理', category: '物联网工程', progress: 45, time: '15:30', location: 'C301', color: 'from-orange-500 to-orange-600' },
+      { id: 5, name: '软件工程', category: '物联网工程', progress: 90, time: '08:00', location: 'D401', color: 'from-pink-500 to-pink-600' },
+      { id: 6, name: '操作系统', category: '物联网工程', progress: 55, time: '11:00', location: 'A302', color: 'from-indigo-500 to-indigo-600' },
+      { id: 7, name: '概率论与数理统计', category: '数学', progress: 30, time: '16:00', location: 'B105', color: 'from-teal-500 to-teal-600' },
+      { id: 8, name: '人工智能导论', category: '物联网工程', progress: 20, time: '17:30', location: 'C205', color: 'from-red-500 to-red-600' }
+    ];
+
+    const recentCourses = [
+      { id: 1, name: '数据结构与算法', category: '物联网工程', progress: 85, lastAccessed: '2小时前', color: 'from-blue-500 to-blue-600' },
+      { id: 2, name: '线性代数', category: '数学', progress: 72, lastAccessed: '5小时前', color: 'from-purple-500 to-purple-600' },
+      { id: 3, name: '计算机网络', category: '物联网工程', progress: 60, lastAccessed: '1天前', color: 'from-green-500 to-green-600' },
+      { id: 4, name: '软件工程', category: '物联网工程', progress: 90, lastAccessed: '2天前', color: 'from-pink-500 to-pink-600' }
+    ];
+
+    const recommendedCourses = [
+      { id: 1, name: '机器学习基础', category: '人工智能', rating: 4.8, students: 1250, color: 'from-violet-500 to-violet-600' },
+      { id: 2, name: 'Web开发实战', category: '前端开发', rating: 4.7, students: 980, color: 'from-cyan-500 to-cyan-600' },
+      { id: 3, name: '数据可视化', category: '数据分析', rating: 4.6, students: 756, color: 'from-amber-500 to-amber-600' }
+    ];
+
+    function renderTodayCourses() {
+      const container = document.getElementById('todayCourses');
+      const todayCourses = courses.slice(0, 4);
+      
+      container.innerHTML = todayCourses.map(course => `
+        <div class="course-card flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-semibold text-gray-900 dark:text-white truncate">${course.name}</h4>
+            <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <span>${course.category}</span>
+              <span>•</span>
+              <span>${course.time}</span>
+              <span>•</span>
+              <span>${course.location}</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm font-medium text-gray-900 dark:text-white">${course.progress}%</div>
+            <div class="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r ${course.color}" style="width: ${course.progress}%"></div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRecentCourses() {
+      const container = document.getElementById('recentCourses');
+      
+      container.innerHTML = recentCourses.map(course => `
+        <div class="course-card flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-semibold text-gray-900 dark:text-white truncate">${course.name}</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">${course.category}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-sm font-medium text-gray-900 dark:text-white">${course.progress}%</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${course.lastAccessed}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRecommendedCourses() {
+      const container = document.getElementById('recommendedCourses');
+      
+      container.innerHTML = recommendedCourses.map(course => `
+        <div class="course-card p-6 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <h4 class="font-bold text-gray-900 dark:text-white mb-2">${course.name}</h4>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${course.category}</p>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+              </svg>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">${course.rating}</span>
+            </div>
+            <span class="text-xs text-gray-500 dark:text-gray-400">${course.students} 学生</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderProgressList(filter = 'all') {
+      const container = document.getElementById('progressList');
+      let filteredCourses = courses;
+      
+      if (filter === 'completed') {
+        filteredCourses = courses.filter(c => c.progress >= 80);
+      } else if (filter === 'inprogress') {
+        filteredCourses = courses.filter(c => c.progress > 0 && c.progress < 80);
+      } else if (filter === 'notstarted') {
+        filteredCourses = courses.filter(c => c.progress === 0);
+      }
+      
+      container.innerHTML = filteredCourses.map(course => `
+        <div class="course-card p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${course.color} flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 dark:text-white">${course.name}</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${course.category}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-bold ${course.progress >= 80 ? 'text-success' : course.progress > 0 ? 'text-primary' : 'text-gray-400'}">${course.progress}%</span>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${course.progress >= 80 ? '已完成' : course.progress > 0 ? '进行中' : '未开始'}</p>
+            </div>
+          </div>
+          <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r ${course.color} transition-all duration-500" style="width: ${course.progress}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterCourses(filter) {
+      const buttons = document.querySelectorAll('.category-badge');
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-primary', 'text-white');
+        btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-primary', 'text-white');
+      
+      renderProgressList(filter);
+    }
+
+    function initCharts() {
+      const progressCtx = document.getElementById('progressChart').getContext('2d');
+      new Chart(progressCtx, {
+        type: 'line',
+        data: {
+          labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+          datasets: [{
+            label: '学习时长 (小时)',
+            data: [2.5, 3.2, 2.8, 4.1, 3.5, 5.2, 4.8],
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#6366f1',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+
+      const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+      new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['物联网工程', '数学', '人工智能', '前端开发'],
+          datasets: [{
+            data: [12, 6, 4, 2],
+            backgroundColor: [
+              '#6366f1',
+              '#8b5cf6',
+              '#f59e0b',
+              '#10b981'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const isDark = localStorage.getItem('theme') === 'dark' || 
+                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      renderTodayCourses();
+      renderRecentCourses();
+      renderRecommendedCourses();
+      renderProgressList();
+      initCharts();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 学习目标</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            accent: '#f59e0b',
+            success: '#10b981',
+            danger: '#ef4444',
+            dark: '#0f172a',
+            darkLighter: '#1e293b',
+            light: '#f8fafc'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
+            'inner-glow': 'inset 0 0 20px rgba(99, 102, 241, 0.1)'
+          }
+        },
+        darkMode: 'class'
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .glass-dark {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .pulse-glow {
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+      }
+      .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .nav-item.active button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      }
+      .nav-item button {
+        color: #64748b;
+      }
+      .dark .nav-item button {
+        color: #94a3b8;
+      }
+      .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+      }
+      .dark .nav-item button:hover {
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+      }
+      .goal-card {
+        transition: all 0.3s ease;
+      }
+      .goal-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+    }
+  </style>
+</head>
+<body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
+  <div class="flex h-screen overflow-hidden">
+    <aside class="w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">CampusFlow</h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400">大学生专属时间规划</p>
+            </div>
+          </div>
+          
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-all hover-lift group">
+            <svg class="w-5 h-5 dark:hidden text-gray-600 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-5 h-5 hidden dark:block text-yellow-300 group-hover:text-yellow-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 space-y-2">
+        <div class="nav-item" data-module="dashboard">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('dashboard.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+            </svg>
+            <span class="font-medium">仪表盘</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="schedule">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="font-medium">课程管理</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="tasks">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('tasks.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <span class="font-medium">任务规划</span>
+          </button>
+        </div>
+
+        <div class="nav-item active" data-module="goals">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('goals.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+            <span class="font-medium">学习目标</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="focus">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('focus.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-medium">专注模式</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="preview">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('preview.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span class="font-medium">在线预览</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="glass dark:glass-dark rounded-xl p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              S
+            </div>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">努力努力再努力</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <p>已完成目标: <span class="text-success font-semibold" id="completedGoalsCount">0</span> / <span id="totalGoalsCount">0</span></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-6 lg:p-8">
+        <div class="mb-8 slide-up">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">学习目标</h2>
+              <p class="text-gray-600 dark:text-gray-400">设定并追踪你的学习目标，保持学习动力</p>
+            </div>
+            <button onclick="openAddGoalModal()" class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover-lift shadow-glow flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              添加目标
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div class="lg:col-span-2">
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">我的目标</h3>
+              <div id="goalsContainer" class="space-y-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">暂无学习目标，点击上方按钮添加</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">目标统计</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">总目标数</span>
+                  <span class="text-2xl font-bold text-gray-900 dark:text-white" id="statTotalGoals">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">已完成</span>
+                  <span class="text-2xl font-bold text-success" id="statCompletedGoals">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">进行中</span>
+                  <span class="text-2xl font-bold text-primary" id="statInProgressGoals">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600 dark:text-gray-400">完成率</span>
+                  <span class="text-2xl font-bold text-accent" id="statCompletionRate">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">目标进度</h3>
+              <canvas id="goalsChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="addGoalModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="glass dark:glass-dark rounded-2xl p-6 w-full max-w-md mx-4 slide-up">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">添加学习目标</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">目标名称</label>
+          <input type="text" id="goalTitle" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" placeholder="例如：完成期末复习">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">目标描述</label>
+          <textarea id="goalDescription" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" placeholder="详细描述你的目标..."></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">目标类型</label>
+          <select id="goalType" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="academic">学术目标</option>
+            <option value="skill">技能提升</option>
+            <option value="project">项目完成</option>
+            <option value="other">其他目标</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">截止日期</label>
+          <input type="date" id="goalDeadline" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">优先级</label>
+          <div class="flex gap-3">
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="goalPriority" value="low" class="sr-only peer">
+              <div class="px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-center peer-checked:border-green-500 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 transition-all">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">低</span>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="goalPriority" value="medium" class="sr-only peer" checked>
+              <div class="px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-center peer-checked:border-yellow-500 peer-checked:bg-yellow-50 dark:peer-checked:bg-yellow-900/20 transition-all">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">中</span>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="goalPriority" value="high" class="sr-only peer">
+              <div class="px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-center peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 transition-all">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">高</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button onclick="closeAddGoalModal()" class="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">取消</button>
+        <button onclick="addGoal()" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium hover-lift shadow-glow">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="editGoalModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="glass dark:glass-dark rounded-2xl p-6 w-full max-w-md mx-4 slide-up">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">编辑学习目标</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">目标名称</label>
+          <input type="text" id="editGoalTitle" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">目标描述</label>
+          <textarea id="editGoalDescription" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">目标类型</label>
+          <select id="editGoalType" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="academic">学术目标</option>
+            <option value="skill">技能提升</option>
+            <option value="project">项目完成</option>
+            <option value="other">其他目标</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">截止日期</label>
+          <input type="date" id="editGoalDeadline" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">优先级</label>
+          <div class="flex gap-3">
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="editGoalPriority" value="low" class="sr-only peer">
+              <div class="px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-center peer-checked:border-green-500 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 transition-all">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">低</span>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="editGoalPriority" value="medium" class="sr-only peer">
+              <div class="px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-center peer-checked:border-yellow-500 peer-checked:bg-yellow-50 dark:peer-checked:bg-yellow-900/20 transition-all">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">中</span>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="editGoalPriority" value="high" class="sr-only peer">
+              <div class="px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 text-center peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 transition-all">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">高</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">进度</label>
+          <input type="range" id="editGoalProgress" min="0" max="100" value="0" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary">
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <span>0%</span>
+            <span id="editGoalProgressValue">0%</span>
+            <span>100%</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button onclick="closeEditGoalModal()" class="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">取消</button>
+        <button onclick="updateGoal()" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium hover-lift shadow-glow">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteGoalModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="glass dark:glass-dark rounded-2xl p-6 w-full max-w-md mx-4 slide-up text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">确认删除</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">确定要删除这个学习目标吗？此操作无法撤销。</p>
+      <div class="flex gap-3">
+        <button onclick="closeDeleteGoalModal()" class="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">取消</button>
+        <button onclick="confirmDeleteGoal()" class="flex-1 px-4 py-3 bg-gradient-to-r from-danger to-red-600 text-white rounded-xl font-medium hover-lift">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let goals = [];
+    let currentEditingGoalId = null;
+    let currentDeletingGoalId = null;
+    let goalsChart = null;
+
+    const goalTypeLabels = {
+      'academic': '学术目标',
+      'skill': '技能提升',
+      'project': '项目完成',
+      'other': '其他目标'
+    };
+
+    const priorityColors = {
+      'low': 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300',
+      'medium': 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300',
+      'high': 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+    };
+
+    const priorityLabels = {
+      'low': '低优先级',
+      'medium': '中优先级',
+      'high': '高优先级'
+    };
+
+    function initGoalsPage() {
+      loadGoals();
+      renderGoals();
+      updateStats();
+      initChart();
+      setupEventListeners();
+    }
+
+    function loadGoals() {
+      const savedGoals = localStorage.getItem('learningGoals');
+      if (savedGoals) {
+        goals = JSON.parse(savedGoals);
+      }
+    }
+
+    function saveGoals() {
+      localStorage.setItem('learningGoals', JSON.stringify(goals));
+    }
+
+    function renderGoals() {
+      const container = document.getElementById('goalsContainer');
+      
+      if (goals.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">暂无学习目标，点击上方按钮添加</p>';
+        return;
+      }
+
+      container.innerHTML = goals.map(goal => {
+        const priorityClass = priorityColors[goal.priority];
+        const isCompleted = goal.progress >= 100;
+        const statusClass = isCompleted ? 'opacity-60' : '';
+        const statusBadge = isCompleted 
+          ? '<span class="text-xs px-2 py-1 rounded-full bg-success/10 text-success">已完成</span>'
+          : '<span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">进行中</span>';
+
+        return `
+          <div class="goal-card ${statusClass} p-5 rounded-xl bg-white dark:bg-darkLighter border border-gray-200 dark:border-gray-700">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h4 class="font-semibold text-gray-900 dark:text-white">${goal.title}</h4>
+                  ${statusBadge}
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">${goal.description || '暂无描述'}</p>
+                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <span class="px-2 py-1 rounded border ${priorityClass}">${priorityLabels[goal.priority]}</span>
+                  <span>${goalTypeLabels[goal.type]}</span>
+                  ${goal.deadline ? `<span>截止: ${formatDate(goal.deadline)}</span>` : ''}
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button onclick="openEditGoalModal('${goal.id}')" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button onclick="openDeleteGoalModal('${goal.id}')" class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">进度</span>
+                <span class="font-medium ${isCompleted ? 'text-success' : 'text-primary'}">${goal.progress}%</span>
+              </div>
+              <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-success' : 'bg-gradient-to-r from-primary to-secondary'}" style="width: ${goal.progress}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats() {
+      const totalGoals = goals.length;
+      const completedGoals = goals.filter(g => g.progress >= 100).length;
+      const inProgressGoals = totalGoals - completedGoals;
+      const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+
+      document.getElementById('statTotalGoals').textContent = totalGoals;
+      document.getElementById('statCompletedGoals').textContent = completedGoals;
+      document.getElementById('statInProgressGoals').textContent = inProgressGoals;
+      document.getElementById('statCompletionRate').textContent = completionRate + '%';
+      document.getElementById('completedGoalsCount').textContent = completedGoals;
+      document.getElementById('totalGoalsCount').textContent = totalGoals;
+
+      updateChart();
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('goalsChart').getContext('2d');
+      goalsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['已完成', '进行中'],
+          datasets: [{
+            data: [0, 0],
+            backgroundColor: ['#10b981', '#6366f1'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#64748b',
+                font: {
+                  size: 12
+                },
+                padding: 15
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function updateChart() {
+      if (goalsChart) {
+        const completedGoals = goals.filter(g => g.progress >= 100).length;
+        const inProgressGoals = goals.length - completedGoals;
+        
+        goalsChart.data.datasets[0].data = [completedGoals, inProgressGoals];
+        goalsChart.update();
+      }
+    }
+
+    function openAddGoalModal() {
+      document.getElementById('addGoalModal').classList.remove('hidden');
+      document.getElementById('goalTitle').value = '';
+      document.getElementById('goalDescription').value = '';
+      document.getElementById('goalType').value = 'academic';
+      document.getElementById('goalDeadline').value = '';
+      document.querySelector('input[name="goalPriority"][value="medium"]').checked = true;
+    }
+
+    function closeAddGoalModal() {
+      document.getElementById('addGoalModal').classList.add('hidden');
+    }
+
+    function addGoal() {
+      const title = document.getElementById('goalTitle').value.trim();
+      const description = document.getElementById('goalDescription').value.trim();
+      const type = document.getElementById('goalType').value;
+      const deadline = document.getElementById('goalDeadline').value;
+      const priority = document.querySelector('input[name="goalPriority"]:checked').value;
+
+      if (!title) {
+        alert('请输入目标名称');
+        return;
+      }
+
+      const newGoal = {
+        id: Date.now().toString(),
+        title,
+        description,
+        type,
+        deadline,
+        priority,
+        progress: 0,
+        createdAt: new Date().toISOString()
+      };
+
+      goals.push(newGoal);
+      saveGoals();
+      renderGoals();
+      updateStats();
+      closeAddGoalModal();
+    }
+
+    function openEditGoalModal(goalId) {
+      const goal = goals.find(g => g.id === goalId);
+      if (!goal) return;
+
+      currentEditingGoalId = goalId;
+      document.getElementById('editGoalModal').classList.remove('hidden');
+      document.getElementById('editGoalTitle').value = goal.title;
+      document.getElementById('editGoalDescription').value = goal.description || '';
+      document.getElementById('editGoalType').value = goal.type;
+      document.getElementById('editGoalDeadline').value = goal.deadline || '';
+      document.getElementById('editGoalProgress').value = goal.progress;
+      document.getElementById('editGoalProgressValue').textContent = goal.progress + '%';
+      
+      const priorityRadio = document.querySelector(`input[name="editGoalPriority"][value="${goal.priority}"]`);
+      if (priorityRadio) {
+        priorityRadio.checked = true;
+      }
+    }
+
+    function closeEditGoalModal() {
+      document.getElementById('editGoalModal').classList.add('hidden');
+      currentEditingGoalId = null;
+    }
+
+    function updateGoal() {
+      if (!currentEditingGoalId) return;
+
+      const goalIndex = goals.findIndex(g => g.id === currentEditingGoalId);
+      if (goalIndex === -1) return;
+
+      const title = document.getElementById('editGoalTitle').value.trim();
+      const description = document.getElementById('editGoalDescription').value.trim();
+      const type = document.getElementById('editGoalType').value;
+      const deadline = document.getElementById('editGoalDeadline').value;
+      const priority = document.querySelector('input[name="editGoalPriority"]:checked').value;
+      const progress = parseInt(document.getElementById('editGoalProgress').value);
+
+      if (!title) {
+        alert('请输入目标名称');
+        return;
+      }
+
+      goals[goalIndex] = {
+        ...goals[goalIndex],
+        title,
+        description,
+        type,
+        deadline,
+        priority,
+        progress,
+        updatedAt: new Date().toISOString()
+      };
+
+      saveGoals();
+      renderGoals();
+      updateStats();
+      closeEditGoalModal();
+    }
+
+    function openDeleteGoalModal(goalId) {
+      currentDeletingGoalId = goalId;
+      document.getElementById('deleteGoalModal').classList.remove('hidden');
+    }
+
+    function closeDeleteGoalModal() {
+      document.getElementById('deleteGoalModal').classList.add('hidden');
+      currentDeletingGoalId = null;
+    }
+
+    function confirmDeleteGoal() {
+      if (!currentDeletingGoalId) return;
+
+      goals = goals.filter(g => g.id !== currentDeletingGoalId);
+      saveGoals();
+      renderGoals();
+      updateStats();
+      closeDeleteGoalModal();
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+
+    function setupEventListeners() {
+      document.getElementById('editGoalProgress').addEventListener('input', (e) => {
+        document.getElementById('editGoalProgressValue').textContent = e.target.value + '%';
+      });
+    }
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const isDark = localStorage.getItem('theme') === 'dark' || 
+                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initGoalsPage();
+    });
+  </script>
+</body>
+</html>
