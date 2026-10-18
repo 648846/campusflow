@@ -108,6 +108,51 @@
     });
   }
 
+  /* ------------------------------- 专注热力图 -------------------------------- */
+
+  /**
+   * 最近 N 天的逐日专注时长，按周对齐（每周一为每列首行）。
+   * 只统计到「今天」为止，未来的格子标记为 future，界面不参与着色与统计。
+   * @returns {Object} { cells, weeks, total, activeDays, max, avg }
+   */
+  function focusHeatmap(days) {
+    days = days || 91;
+    var sessions = getFocusSessions();
+    var byDate = {};
+    sessions.forEach(function (s) { byDate[s.date] = (byDate[s.date] || 0) + s.minutes; });
+
+    var now = startOfDay(new Date());
+    var weekdayIdx = (now.getDay() + 6) % 7;          // 周一 = 0
+    var thisMonday = addDays(now, -weekdayIdx);
+    var weeks = Math.ceil((days + weekdayIdx) / 7);
+    var start = addDays(thisMonday, -(weeks - 1) * 7);
+
+    var cells = [];
+    var total = 0, activeDays = 0, max = 0;
+
+    for (var i = 0; i < weeks * 7; i++) {
+      var d = addDays(start, i);
+      var key = dateKey(d);
+      var minutes = byDate[key] || 0;
+      var future = d.getTime() > now.getTime();
+      cells.push({ date: key, minutes: minutes, future: future });
+      if (!future) {
+        total += minutes;
+        if (minutes > 0) activeDays++;
+        if (minutes > max) max = minutes;
+      }
+    }
+
+    return {
+      cells: cells,
+      weeks: weeks,
+      total: total,
+      activeDays: activeDays,
+      max: max,
+      avg: activeDays ? Math.round(total / activeDays) : 0
+    };
+  }
+
   /* ---------------------------------- 统计 ----------------------------------- */
 
   /**
@@ -244,23 +289,38 @@
     { id: 'g3', title: '完成一个物联网课程项目', description: '基于 ESP32 的环境监测', type: 'project', deadline: '2026-11-15', priority: 'high', progress: 15, createdAt: '2026-10-08T08:00:00.000Z' }
   ];
 
-  /** 近 14 天专注记录，制造出真实可看的趋势 */
+  /**
+   * 近 70 天专注记录：按「周一至周日」的作息节律生成，
+   * 周末投入略多、工作日略少，并保留个别休息日，
+   * 这样热力图能看出真实的起伏，而不是一条平直的高原。
+   */
   function demoFocusHistory() {
-    var pattern = [70, 95, 40, 120, 85, 30, 110, 65, 100, 55, 130, 90, 45, 105];
+    var DAYS = 70;
+    var weekly = [70, 95, 40, 120, 85, 30, 110];   // 周一至周日的日均分钟数
     var out = [];
     var now = new Date();
-    for (var i = pattern.length - 1; i >= 0; i--) {
-      var d = addDays(now, -i);
-      var minutes = pattern[pattern.length - 1 - i];
-      var sessionTime = new Date(d);
-      sessionTime.setHours(20, 10, 0, 0);
-      // 一天拆成 1~2 段，更接近真实番茄钟记录
+
+    for (var i = DAYS - 1; i >= 0; i--) {
+      var day = addDays(now, -i);
+      var wd = (day.getDay() + 6) % 7;             // 周一 = 0
+      var week = Math.floor((DAYS - 1 - i) / 7);   // 0 表示最早的一周
+      var minutes = weekly[wd];
+
+      if (week % 4 === 1) minutes = Math.round(minutes * 1.2);  // 每隔几周有一次冲刺
+      if (week % 5 === 3 && wd === 2) minutes = 0;              // 偶尔整周中的一天休息
+      if (minutes <= 0) continue;
+
+      var first = new Date(day);
+      first.setHours(20, 10, 0, 0);
+
+      // 超过一小时的任务拆成两段，更接近真实番茄钟记录
       if (minutes > 60) {
-        out.push({ duration: 40, date: sessionTime.toLocaleString('zh-CN'), timestamp: sessionTime.getTime() });
-        sessionTime.setHours(21, 5, 0, 0);
-        out.push({ duration: minutes - 40, date: sessionTime.toLocaleString('zh-CN'), timestamp: sessionTime.getTime() });
+        out.push({ duration: 40, date: first.toLocaleString('zh-CN'), timestamp: first.getTime() });
+        var second = new Date(day);
+        second.setHours(21, 5, 0, 0);
+        out.push({ duration: minutes - 40, date: second.toLocaleString('zh-CN'), timestamp: second.getTime() });
       } else {
-        out.push({ duration: minutes, date: sessionTime.toLocaleString('zh-CN'), timestamp: sessionTime.getTime() });
+        out.push({ duration: minutes, date: first.toLocaleString('zh-CN'), timestamp: first.getTime() });
       }
     }
     return out;
@@ -377,6 +437,7 @@
     getTasks: getTasks,
     getGoals: getGoals,
     getFocusSessions: getFocusSessions,
+    focusHeatmap: focusHeatmap,
     stats: stats,
     todayCourses: todayCourses,
     attentionCourses: attentionCourses,

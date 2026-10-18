@@ -221,6 +221,27 @@
           </div>
         </div>
 
+        <div class="glass dark:glass-dark rounded-2xl p-6 mb-8">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">专注热力图</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">最近 13 周逐日专注时长，一格代表一天；颜色越深，那天投入越多</p>
+            </div>
+            <div class="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400 flex-shrink-0">
+              <span>少</span>
+              <span id="heatLegend" class="flex items-center gap-1"></span>
+              <span>多</span>
+            </div>
+          </div>
+          <div class="flex flex-col xl:flex-row xl:items-center gap-6">
+            <div class="flex items-start gap-2 flex-shrink-0">
+              <div id="heatWeekdays" class="flex flex-col justify-between text-[10px] text-gray-400 dark:text-gray-500" style="height:156px;"></div>
+              <div id="heatGrid" style="display:grid;grid-template-rows:repeat(7,18px);grid-auto-flow:column;grid-auto-columns:18px;gap:5px;"></div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1 min-w-0" id="heatStats"></div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div class="glass dark:glass-dark rounded-2xl p-6">
             <div class="flex items-center justify-between gap-3 mb-6">
@@ -665,12 +686,12 @@
     }
 
     /**
-     * 载入演示数据：把数据拉回同一初始点（8 门课 / 7 项任务 / 3 个目标 / 14 天专注记录）。
+     * 载入演示数据：把数据拉回同一初始点（8 门课 / 7 项任务 / 3 个目标 / 70 天专注记录）。
      * 录屏、答辩演示前点一次即可，避免"上一次演示改过的数据"留在页面里。
      * 也可以用 URL 参数跳过这一步：任意页面后加 ?demo=1 打开即自动重置。
      */
     function loadDemoData() {
-      var ok = confirm('将清空当前数据并载入内置示例数据：\n8 门课程 / 7 项任务 / 3 个学习目标 / 14 天专注记录。\n\n此操作不可撤销，建议先导出备份。确定继续？');
+      var ok = confirm('将清空当前数据并载入内置示例数据：\n8 门课程 / 7 项任务 / 3 个学习目标 / 70 天专注记录。\n\n此操作不可撤销，建议先导出备份。确定继续？');
       if (!ok) return;
       if (CF.loadDemo()) {
         location.reload();
@@ -685,12 +706,67 @@
       window.location.href = page;
     }
 
+    /* -------------------------------- 专注热力图 ------------------------------- */
+
+    /** 五档色彩：0 表示当天没有专注记录，深浅随当天时长递增 */
+    function heatColor(level, dark) {
+      var light = ['#E9EEF3', '#CFE3F4', '#9CC5E8', '#4F92CF', '#1565C0'];
+      var deep = ['#2B3138', '#1D3A52', '#265A80', '#2F7BB5', '#4C9FE0'];
+      return (dark ? deep : light)[level];
+    }
+
+    function renderHeatmap() {
+      var grid = document.getElementById('heatGrid');
+      if (!grid || !CF.focusHeatmap) return;
+
+      var data = CF.focusHeatmap(91);
+      var dark = document.documentElement.classList.contains('dark');
+      var emptyRing = dark ? '#2B3138' : '#EDF1F5';
+
+      grid.innerHTML = data.cells.map(function (cell) {
+        var level = cell.minutes === 0 ? 0
+          : cell.minutes <= 25 ? 1
+            : cell.minutes <= 50 ? 2
+              : cell.minutes <= 90 ? 3 : 4;
+        var style = 'border-radius:3px;background:' + (cell.future ? 'transparent' : heatColor(level, dark)) + ';';
+        if (cell.future) style += 'box-shadow:inset 0 0 0 1px ' + emptyRing + ';';
+        var tip = cell.future ? cell.date + ' · 未到' : cell.date + ' · ' + cell.minutes + ' 分钟';
+        return '<div title="' + tip + '" style="' + style + '"></div>';
+      }).join('');
+
+      document.getElementById('heatWeekdays').innerHTML =
+        ['一', '', '三', '', '五', '', '日'].map(function (t) {
+          return '<span>' + t + '</span>';
+        }).join('');
+
+      document.getElementById('heatLegend').innerHTML = [0, 1, 2, 3, 4].map(function (lv) {
+        return '<span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:' +
+          heatColor(lv, dark) + '"></span>';
+      }).join('');
+
+      var cards = [
+        { label: '近 13 周累计', value: Math.round(data.total / 60 * 10) / 10, unit: '小时' },
+        { label: '有专注的天数', value: data.activeDays, unit: '天' },
+        { label: '活跃日均', value: data.avg, unit: '分钟' },
+        { label: '单日最高', value: data.max, unit: '分钟' }
+      ];
+
+      document.getElementById('heatStats').innerHTML = cards.map(function (c) {
+        return '<div class="rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700 p-3.5">' +
+          '<p class="text-xl font-bold text-gray-900 dark:text-white">' + c.value +
+            '<span class="text-xs font-medium text-gray-400 ml-1">' + c.unit + '</span></p>' +
+          '<p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">' + c.label + '</p>' +
+        '</div>';
+      }).join('');
+    }
+
     function initTheme() {
       var themeToggle = document.getElementById('themeToggle');
       if (!themeToggle) return;
       themeToggle.addEventListener('click', function () {
         var dark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', dark ? 'dark' : 'light');
+        renderHeatmap(); // 热力图用内联色值，切换主题后需要重绘
       });
     }
 
@@ -701,6 +777,7 @@
       renderReminders();
       renderAttention();
       renderProgressList('all');
+      renderHeatmap();
       initCharts();
 
       var importInput = document.getElementById('importFile');

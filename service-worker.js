@@ -12,7 +12,7 @@
    ========================================================================== */
 'use strict';
 
-var VERSION = 'campusflow-v1';
+var VERSION = 'campusflow-v2';
 var SHELL_CACHE = VERSION + '-shell';
 var RUNTIME_CACHE = VERSION + '-runtime';
 

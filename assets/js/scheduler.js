@@ -226,7 +226,7 @@
       return {
         date: date, weekdayLabel: WEEK_CN[date.getDay()], windows: [],
         blocks: [], skipped: [], conflicts: detectConflicts(courses),
-        plannedMinutes: 0, capacityMinutes: 0
+        plannedMinutes: 0, capacityMinutes: 0, candidateCount: 0
       };
     }
 
@@ -243,7 +243,7 @@
     var wi = 0;
     var cursor = windows[0].start;
 
-    candidates.forEach(function (item) {
+    candidates.forEach(function (item, index) {
       var need = Number(item.task.estimate) || DEFAULT_ESTIMATE;
 
       // 找到放得下的窗口
@@ -266,6 +266,12 @@
         task: item.task,
         score: item.score,
         reason: item.reason,
+        // 打分明细：把中间值一并带出，界面可直接展示「为什么是这个分数」
+        urgency: item.urgency,
+        importance: item.importance,
+        gap: Math.round(item.gap * 10) / 10,
+        days: item.days,
+        rank: index + 1,
         course: courseMap[item.task.course] || null
       });
 
@@ -280,7 +286,8 @@
       skipped: skipped,
       conflicts: detectConflicts(courses),
       plannedMinutes: blocks.reduce(function (s, b) { return s + b.minutes; }, 0),
-      capacityMinutes: capacity
+      capacityMinutes: capacity,
+      candidateCount: candidates.length
     };
   }
 
