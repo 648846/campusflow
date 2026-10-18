@@ -229,12 +229,12 @@
   ];
 
   var DEMO_TASKS = [
-    { id: 1, title: '完成数据结构作业', course: '数据结构与算法', priority: 'high', dueDate: '今天 18:00', completed: false },
-    { id: 2, title: '复习线性代数第三章', course: '线性代数', priority: 'medium', dueDate: '今天 21:00', completed: false },
-    { id: 3, title: '准备计算机网络实验报告', course: '计算机网络', priority: 'high', dueDate: '明天 14:00', completed: false },
-    { id: 4, title: '数据库课程设计', course: '数据库原理', priority: 'medium', dueDate: '周五 16:00', completed: false },
-    { id: 5, title: '阅读软件工程论文', course: '软件工程', priority: 'low', dueDate: '下周', completed: true },
-    { id: 6, title: '操作系统实验', course: '操作系统', priority: 'high', dueDate: '今天 20:00', completed: true }
+    { id: 1, title: '完成数据结构作业', course: '数据结构与算法', priority: 'high', dueDate: '今天 18:00', estimate: 50, completed: false },
+    { id: 2, title: '复习线性代数第三章', course: '线性代数', priority: 'medium', dueDate: '今天 21:00', estimate: 50, completed: false },
+    { id: 3, title: '准备计算机网络实验报告', course: '计算机网络', priority: 'high', dueDate: '明天 14:00', estimate: 75, completed: false },
+    { id: 4, title: '数据库课程设计', course: '数据库原理', priority: 'medium', dueDate: '周五 16:00', estimate: 100, completed: false },
+    { id: 5, title: '阅读软件工程论文', course: '软件工程', priority: 'low', dueDate: '下周', estimate: 25, completed: true },
+    { id: 6, title: '操作系统实验', course: '操作系统', priority: 'high', dueDate: '今天 20:00', estimate: 50, completed: true }
   ];
 
   var DEMO_GOALS = [
@@ -325,12 +325,35 @@
     try { localStorage.setItem(KEYS.seeded, '1'); } catch (e) { /* 忽略 */ }
   }
 
+  /* --------------------------------- 通用 UI --------------------------------- */
+
+  /** 转义 HTML，所有用户输入渲染到页面时都必须经过它 */
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /** 轻提示，各页面统一使用同一套样式 */
+  function toast(message, type) {
+    var box = document.createElement('div');
+    var color = type === 'error' ? 'bg-danger' : 'bg-gray-900 dark:bg-gray-700';
+    box.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 lg:bottom-8 z-[60] ' + color +
+      ' text-white text-sm px-5 py-3 rounded-xl shadow-2xl transition-opacity duration-300';
+    box.textContent = message;
+    document.body.appendChild(box);
+    setTimeout(function () { box.style.opacity = '0'; }, 2200);
+    setTimeout(function () { box.remove(); }, 2600);
+  }
+
   /* --------------------------------- 对外接口 -------------------------------- */
 
   global.CF = {
     KEYS: KEYS,
     read: read,
     write: write,
+    escapeHtml: escapeHtml,
+    toast: toast,
     getCourses: getCourses,
     getTasks: getTasks,
     getGoals: getGoals,
@@ -346,4 +369,22 @@
     todayKey: todayKey,
     WEEK_CN: WEEK_CN
   };
+
+  /* ------------------------------ 侧边栏统计口径 ----------------------------- */
+
+  /** 所有带侧边栏的页面共用同一口径，避免各页显示不同数字 */
+  function hydrateSidebar() {
+    var weekEl = document.getElementById('sidebarWeekHours');
+    var streakEl = document.getElementById('sidebarStreak');
+    if (!weekEl && !streakEl) return;
+    var s = stats();
+    if (weekEl) weekEl.textContent = s.weekHours + ' 小时';
+    if (streakEl) streakEl.textContent = s.streak + ' 天';
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hydrateSidebar);
+  } else {
+    hydrateSidebar();
+  }
 })(window);

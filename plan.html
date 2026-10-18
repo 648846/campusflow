@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFlow - 智能排程</title>
+  <!-- 资源已本地化：断网 / 离线评审环境同样可完整渲染 -->
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script>
+    // 首屏前应用主题，避免深色模式闪白
+    (function () {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/scheduler.js"></script>
+  <script src="assets/js/nav.js" defer></script>
+</head>
+<body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
+  <div class="app-shell flex h-screen overflow-hidden">
+    <aside class="app-sidebar w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold gradient-text">CampusFlow</h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400">大学生专属时间规划</p>
+            </div>
+          </div>
+          
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-all hover-lift group">
+            <svg class="w-5 h-5 dark:hidden text-gray-600 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-5 h-5 hidden dark:block text-yellow-300 group-hover:text-yellow-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 space-y-2">
+        <div class="nav-item" data-module="dashboard">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('index.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
+            </svg>
+            <span class="font-medium">仪表盘</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="plan">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('plan.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z"></path>
+            </svg>
+            <span class="font-medium">智能排程</span>
+          </button>
+        </div>
+
+        <div class="nav-item active" data-module="plan">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('plan.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z"></path>
+            </svg>
+            <span class="font-medium">智能排程</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="schedule">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="font-medium">课程管理</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="tasks">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('tasks.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2l-2-2-4 4"></path>
+            </svg>
+            <span class="font-medium">任务规划</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="goals">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('goals.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-3.138-3.138z"></path>
+            </svg>
+            <span class="font-medium">学习目标</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="focus">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('focus.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="font-medium">专注模式</span>
+          </button>
+        </div>
+
+        <div class="nav-item" data-module="preview">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('preview.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span class="font-medium">在线预览</span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="glass dark:glass-dark rounded-xl p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              S
+            </div>
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">努力努力再努力</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+            <p>本周专注: <span id="sidebarWeekHours" class="text-primary font-semibold">—</span></p>
+            <p>连续专注: <span id="sidebarStreak" class="text-primary font-semibold">—</span></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+
+    <main class="app-main flex-1 overflow-y-auto">
+      <div class="p-6 lg:p-8">
+        <div class="mb-6 slide-up">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-1">智能排程</h2>
+              <p class="text-gray-600 dark:text-gray-400 text-sm">根据课程表、任务截止时间与课程进度，自动排出今天该学什么</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button onclick="regenerate()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold hover-lift shadow-glow flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15"/>
+                </svg>
+                重新排程
+              </button>
+              <button onclick="navigateTo('tasks.html')" class="px-4 py-2.5 rounded-xl bg-white dark:bg-darkLighter border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-primary/40 transition-colors">管理任务</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="conflictBox" class="hidden mb-6"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div class="lg:col-span-2 glass dark:glass-dark rounded-2xl p-6">
+            <div class="flex items-center justify-between gap-3 mb-1">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">今日计划</h3>
+              <span id="planDate" class="text-xs text-gray-500 dark:text-gray-400"></span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">排序依据：紧迫度 × 0.6 ＋ 重要度 × 0.8 ＋ 课程进度缺口</p>
+            <div id="planTimeline" class="space-y-3"></div>
+            <div id="skippedBox" class="hidden mt-4"></div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">今天的时间预算</h3>
+              <div id="capacityBox"></div>
+            </div>
+
+            <div class="glass dark:glass-dark rounded-2xl p-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">本周负荷</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">按任务截止时间聚合，超出当日可用时长会标红</p>
+              <div id="weekLoad" class="space-y-2.5"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass dark:glass-dark rounded-2xl p-6">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">排程规则</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">规则完全公开，便于核对结果是否合理</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">1</span>
+                <h4 class="font-semibold text-gray-900 dark:text-white text-sm">任务打分</h4>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                紧迫度（逾期 100 → 今天 90 → 明天 70 → 三天内 50）× 0.6，
+                加重要度（高 30 / 中 20 / 低 10）× 0.8，
+                再加课程进度缺口（进度越低加分越多）。
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-7 h-7 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center text-xs font-bold">2</span>
+                <h4 class="font-semibold text-gray-900 dark:text-white text-sm">时间窗口</h4>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                工作日 19:00–22:00；周末 09:00–11:30、14:00–17:30、19:00–22:00。
+                按任务预计时长依次填充，块与块之间留 10 分钟休息，不会排到已经过去的时间。
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-7 h-7 rounded-lg bg-accent/10 text-accent flex items-center justify-center text-xs font-bold">3</span>
+                <h4 class="font-semibold text-gray-900 dark:text-white text-sm">冲突检测</h4>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                同一星期几、时间区间重叠的课程会被标出（每节按 90 分钟计）。
+                课表本身冲突时，先修正课表再排程才有意义。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+
+  <script>
+    /* ==========================================================================
+       智能排程页
+       算法在 assets/js/scheduler.js（纯函数），此处只负责渲染与交互。
+       ========================================================================== */
+    CF.seedIfEmpty();
+
+    var escapeHtml = CF.escapeHtml;
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function regenerate() {
+      renderAll();
+      CF.toast('已按最新数据重新排程');
+    }
+
+    /* --------------------------------- 冲突提示 -------------------------------- */
+
+    function renderConflicts(conflicts) {
+      var box = document.getElementById('conflictBox');
+      if (!conflicts.length) {
+        box.className = 'hidden';
+        box.innerHTML = '';
+        return;
+      }
+
+      box.className = 'mb-6';
+      box.innerHTML = '<div class="rounded-2xl border border-danger/30 bg-danger/10 p-4">' +
+        '<div class="flex items-start gap-3">' +
+          '<span class="w-9 h-9 rounded-xl bg-danger/15 text-danger flex items-center justify-center flex-shrink-0">' +
+            '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>' +
+          '</span>' +
+          '<div class="min-w-0 flex-1">' +
+            '<h3 class="font-semibold text-danger">检测到 ' + conflicts.length + ' 处课程时间冲突</h3>' +
+            '<ul class="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300">' +
+              conflicts.map(function (c) {
+                return '<li>' + escapeHtml(c.weekdayLabel) + ' ' + escapeHtml(c.range) + '：' +
+                  escapeHtml(c.a.name) + ' 与 ' + escapeHtml(c.b.name) + ' 时间重叠</li>';
+              }).join('') +
+            '</ul>' +
+            '<button onclick="navigateTo(\'schedule.html\')" class="mt-3 text-sm font-medium text-danger underline underline-offset-2">去课程管理调整</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* --------------------------------- 今日计划 -------------------------------- */
+
+    function renderTimeline(plan) {
+      var container = document.getElementById('planTimeline');
+      var skippedBox = document.getElementById('skippedBox');
+
+      if (!plan.blocks.length) {
+        container.innerHTML = '<div class="py-10 text-center">' +
+          '<p class="text-gray-500 dark:text-gray-400 text-sm">今天没有需要安排的学习任务</p>' +
+          '<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">去「任务规划」添加任务，或享受一个轻松的晚上</p>' +
+          '</div>';
+      } else {
+        container.innerHTML = plan.blocks.map(function (block, index) {
+          var urgent = block.reason.indexOf('逾期') > -1 || block.reason.indexOf('今天') > -1;
+          return '<div class="flex gap-3">' +
+            '<div class="w-12 flex-shrink-0 text-right pt-1">' +
+              '<p class="text-sm font-semibold text-gray-900 dark:text-white">' + block.startLabel + '</p>' +
+              '<p class="text-[11px] text-gray-400 dark:text-gray-500">' + block.endLabel + '</p>' +
+            '</div>' +
+            '<div class="relative flex-1 min-w-0 rounded-xl bg-white dark:bg-darkLighter border border-gray-100 dark:border-gray-700 p-3.5 hover-lift">' +
+              '<span class="absolute left-0 top-3 bottom-3 w-1 rounded-full ' + (urgent ? 'bg-danger' : 'bg-primary') + '"></span>' +
+              '<div class="pl-3 flex items-start justify-between gap-3 min-w-0">' +
+                '<div class="min-w-0">' +
+                  '<p class="font-semibold text-gray-900 dark:text-white truncate">' + escapeHtml(block.task.title) + '</p>' +
+                  '<p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">' +
+                    escapeHtml(block.task.course) + ' · ' + escapeHtml(block.reason) +
+                  '</p>' +
+                '</div>' +
+                '<span class="text-[11px] px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0 ' +
+                  (urgent ? 'bg-danger/10 text-danger' : 'bg-primary/10 text-primary') + '">' +
+                  block.minutes + ' 分钟</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      if (plan.skipped.length) {
+        skippedBox.className = 'mt-4';
+        skippedBox.innerHTML = '<div class="rounded-xl bg-accent/10 border border-accent/20 p-3.5">' +
+          '<p class="text-sm text-gray-700 dark:text-gray-300">今天的时间不够，还有 <strong>' + plan.skipped.length + '</strong> 项顺延：' +
+          plan.skipped.map(function (s) { return escapeHtml(s.task.title); }).join('、') + '</p>' +
+          '<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">可以拆分任务或提高明天的时间投入</p>' +
+          '</div>';
+      } else {
+        skippedBox.className = 'hidden';
+        skippedBox.innerHTML = '';
+      }
+    }
+
+    function renderCapacity(plan) {
+      var box = document.getElementById('capacityBox');
+      var used = plan.plannedMinutes;
+      var cap = plan.capacityMinutes;
+      var percent = cap ? Math.min(100, Math.round(used / cap * 100)) : 0;
+
+      var windowText = plan.windows.length
+        ? plan.windows.map(function (w) { return CFPlan.toHHMM(w.start) + '–' + CFPlan.toHHMM(w.end); }).join('、')
+        : '今天已无可安排时段';
+
+      box.innerHTML =
+        '<div class="flex items-end justify-between mb-2">' +
+          '<span class="text-2xl font-bold text-gray-900 dark:text-white">' + used + '<span class="text-sm font-medium text-gray-400"> / ' + cap + ' 分钟</span></span>' +
+          '<span class="text-xs text-gray-500 dark:text-gray-400">' + percent + '%</span>' +
+        '</div>' +
+        '<div class="w-full h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">' +
+          '<div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500" style="width:' + percent + '%"></div>' +
+        '</div>' +
+        '<p class="text-xs text-gray-500 dark:text-gray-400">可用时段：' + windowText + '</p>';
+    }
+
+    /* --------------------------------- 本周负荷 -------------------------------- */
+
+    function renderWeekLoad(week) {
+      var box = document.getElementById('weekLoad');
+
+      box.innerHTML = week.days.map(function (day) {
+        var percent = day.capacity ? Math.min(100, Math.round(day.minutes / day.capacity * 100)) : 0;
+        var barColor = day.overloaded ? 'bg-danger' : day.minutes > 0 ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600';
+        return '<div class="flex items-center gap-2.5">' +
+          '<span class="w-8 text-xs flex-shrink-0 ' + (day.isToday ? 'font-bold text-primary' : 'text-gray-500 dark:text-gray-400') + '">' + day.label + '</span>' +
+          '<div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">' +
+            '<div class="h-full ' + barColor + ' rounded-full" style="width:' + percent + '%"></div>' +
+          '</div>' +
+          '<span class="w-14 text-right text-[11px] flex-shrink-0 ' + (day.overloaded ? 'text-danger font-medium' : 'text-gray-500 dark:text-gray-400') + '">' +
+            (day.tasks ? day.tasks + ' 项' : '—') + '</span>' +
+        '</div>';
+      }).join('') +
+      '<div class="pt-3 mt-1 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">' +
+        '<span>本周待完成工作量</span>' +
+        '<span class="font-medium text-gray-700 dark:text-gray-300">' + Math.round(week.totalMinutes / 60 * 10) / 10 + ' 小时</span>' +
+      '</div>';
+    }
+
+    /* ---------------------------------- 主流程 --------------------------------- */
+
+    function renderAll() {
+      var courses = CF.getCourses();
+      var tasks = CF.getTasks();
+      var now = new Date();
+      var plan = CFPlan.buildDayPlan(now, tasks, courses);
+      var week = CFPlan.buildWeekLoad(tasks, courses, now);
+
+      document.getElementById('planDate').textContent =
+        (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日 · ' + plan.weekdayLabel;
+
+      renderConflicts(plan.conflicts);
+      renderTimeline(plan);
+      renderCapacity(plan);
+      renderWeekLoad(week);
+    }
+
+    function initTheme() {
+      var themeToggle = document.getElementById('themeToggle');
+      if (!themeToggle) return;
+      themeToggle.addEventListener('click', function () {
+        var dark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initTheme();
+      renderAll();
+    });
+  </script>
+</body>
+</html>

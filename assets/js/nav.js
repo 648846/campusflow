@@ -11,11 +11,13 @@
     tasks: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4',
     goals: 'M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
     focus: 'M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+    plan: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3ZM19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14Z',
     preview: 'M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-12.542 0C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z'
   };
 
   var PAGES = [
     { file: 'index.html', label: '仪表盘', icon: 'dashboard' },
+    { file: 'plan.html', label: '计划', icon: 'plan' },
     { file: 'schedule.html', label: '课程', icon: 'schedule' },
     { file: 'tasks.html', label: '任务', icon: 'tasks' },
     { file: 'goals.html', label: '目标', icon: 'goals' },

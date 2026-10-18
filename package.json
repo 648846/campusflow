@@ -11,7 +11,8 @@
     "build": "npm run css && electron-builder",
     "build:win": "npm run css && electron-builder --win",
     "build:mac": "npm run css && electron-builder --mac",
-    "build:linux": "npm run css && electron-builder --linux"
+    "build:linux": "npm run css && electron-builder --linux",
+    "test": "node tests/scheduler.test.js"
   },
   "build": {
     "appId": "com.campusflow.app",
@@ -29,7 +30,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
@@ -43,7 +46,10 @@
       "target": "dmg"
     },
     "linux": {
-      "target": ["AppImage", "deb"]
+      "target": [
+        "AppImage",
+        "deb"
+      ]
     }
   },
   "devDependencies": {

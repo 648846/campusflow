@@ -57,6 +57,16 @@
           </button>
         </div>
 
+        <div class="nav-item" data-module="plan">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('plan.html')">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z"></path>
+            </svg>
+            <span class="font-medium">智能排程</span>
+          </button>
+        </div>
+
         <div class="nav-item" data-module="schedule">
           <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('schedule.html')">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,8 +125,9 @@
               <p class="text-xs text-gray-500 dark:text-gray-400">物联网工程</p>
             </div>
           </div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            <p>本周学习时长: <span class="text-primary font-semibold">12.5小时</span></p>
+          <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+            <p>本周专注: <span id="sidebarWeekHours" class="text-primary font-semibold">—</span></p>
+            <p>连续专注: <span id="sidebarStreak" class="text-primary font-semibold">—</span></p>
           </div>
         </div>
       </div>
@@ -313,6 +324,16 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">截止时间</label>
               <input type="datetime-local" id="taskDueDate" required class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
             </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">预计时长</label>
+              <select id="taskEstimate" class="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkLighter text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                <option value="25" selected>25 分钟（1 个番茄）</option>
+                <option value="50">50 分钟（2 个番茄）</option>
+                <option value="75">75 分钟（3 个番茄）</option>
+                <option value="100">100 分钟（4 个番茄）</option>
+              </select>
+            </div>
           </div>
           
           <div class="flex gap-3 mt-6">
@@ -390,6 +411,7 @@
         const title = document.getElementById('taskTitle').value.trim();
         const course = document.getElementById('taskCourse').value;
         const priority = document.getElementById('taskPriority').value;
+        const estimate = Number(document.getElementById('taskEstimate').value) || 25;
         const dueDate = document.getElementById('taskDueDate').value;
         
         if (!title) {
@@ -408,6 +430,8 @@
           course: course,
           priority: priority,
           dueDate: formatDueDate(dueDate),
+          due: dueDate,          // 结构化截止时间，供智能排程使用
+          estimate: estimate,    // 预计时长（分钟）
           completed: false
         };
         
@@ -507,6 +531,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                   ${task.dueDate}
+                </span>
+                <span class="flex items-center gap-1 whitespace-nowrap">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"></path>
+                  </svg>
+                  ${task.estimate || 25} 分钟
                 </span>
               </div>
             </div>
