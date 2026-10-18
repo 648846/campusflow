@@ -261,6 +261,24 @@ CampusFlow 是一个可安装的 Web 应用（PWA）。通过 http(s) 访问后�
 
 > 说明：Service Worker 只在 `http(s)` 下生效。直接双击 `index.html`（`file://` 协议）时功能完整可用，但无法安装、也不会写入离线缓存——这是浏览器的安全限制，不是应用缺陷。
 
+### 部署到静态托管（Cloudflare Pages / Vercel / Netlify）
+
+本项目是**纯静态多页站点**，没有服务端、没有打包产物目录——所有页面就在仓库根目录。托管平台需要这样配置：
+
+| 配置项 | 填什么 | 说明 |
+| --- | --- | --- |
+| 构建命令 | `npm run build` | 只编译 Tailwind 样式，约 2 秒；也可留空或填 `exit 0`，因为仓库里已带编译好的 CSS |
+| 输出目录 | `/`（即 `.` ，仓库根目录） | **不是** `dist`。填错会报"输出目录为空" |
+| Node 版本 | 18 或 20 | 本项目的构建脚本零依赖，版本不敏感 |
+| 环境变量（可选） | `ELECTRON_SKIP_BINARY_DOWNLOAD=1` | 避免安装约 200 MB 的 Electron 二进制，静态部署用不到 |
+
+> 常见报错对照：
+> - `命令 "npm run build" 以 127 退出` → 依赖没装或脚本缺失。本项目曾因 `tailwindcss` 未写入 `devDependencies` 触发此错，已在 v1.1.1 修复。
+> - `No output directory named "dist" found` → 输出目录应填 `/`。
+> - 页面打开 404 → 确认根目录存在 `index.html`（本项目入口是 `index.html`，不是 `dashboard.html`）。
+
+GitHub Pages 也可以直接用（仓库已带 `.nojekyll`，无需任何构建步骤）。
+
 ### 演示数据（录屏 / 答辩前）
 
 每次演示前把数据拉回同一个初始点，避免"上一次演示中途改过的东西"留在页面里。两种方式等价：

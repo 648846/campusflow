@@ -263,8 +263,11 @@ npm run build:linux
 #### 全平台打包
 
 ```bash
-npm run build
+npm run build:app
 ```
+
+> 注意：`npm run build` 现在只编译 Tailwind 样式（供静态托管使用），
+> 桌面端打包请用 `npm run build:app`，或直接用上面的 `build:win / build:mac / build:linux`。
 
 ---
 
