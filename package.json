@@ -5,11 +5,13 @@
   "author": "CampusFlow",
   "main": "main.js",
   "scripts": {
+    "css": "tailwindcss -i src/input.css -o assets/css/tailwind.css --minify",
+    "css:watch": "tailwindcss -i src/input.css -o assets/css/tailwind.css --watch",
     "start": "electron .",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux"
+    "build": "npm run css && electron-builder",
+    "build:win": "npm run css && electron-builder --win",
+    "build:mac": "npm run css && electron-builder --mac",
+    "build:linux": "npm run css && electron-builder --linux"
   },
   "build": {
     "appId": "com.campusflow.app",
@@ -20,6 +22,7 @@
     "files": [
       "*.html",
       "main.js",
+      "assets/**/*",
       "package.json"
     ],
     "win": {

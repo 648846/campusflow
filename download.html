@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusFlow - 文件下载</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -23,6 +22,19 @@
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     }
   </style>
+  <!-- 资源已本地化：断网 / 离线评审环境同样可完整渲染 -->
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script>
+    // 首屏前应用主题，避免深色模式闪白
+    (function () {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+  <script src="assets/js/nav.js" defer></script>
 </head>
 <body class="flex items-center justify-center p-8">
   <div class="download-card rounded-2xl p-8 max-w-4xl w-full shadow-2xl">
@@ -32,13 +44,13 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <a href="dashboard.html" download="dashboard.html" class="download-btn bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
+      <a href="index.html" download="index.html" class="download-btn bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg">
         <div class="flex flex-col items-center gap-2">
           <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 19a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
           </svg>
           <span>仪表盘</span>
-          <span class="text-sm opacity-75">dashboard.html</span>
+          <span class="text-sm opacity-75">index.html</span>
         </div>
       </a>
 

@@ -4,124 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusFlow - 仪表盘</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <!-- 资源已本地化：断网 / 离线评审环境同样可完整渲染 -->
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/app.css">
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#6366f1',
-            secondary: '#8b5cf6',
-            accent: '#f59e0b',
-            success: '#10b981',
-            danger: '#ef4444',
-            dark: '#0f172a',
-            darkLighter: '#1e293b',
-            light: '#f8fafc'
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-          },
-          boxShadow: {
-            'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
-            'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
-            'inner-glow': 'inset 0 0 20px rgba(99, 102, 241, 0.1)'
-          }
-        },
-        darkMode: 'class'
+    // 首屏前应用主题，避免深色模式闪白
+    (function () {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
       }
-    }
+    })();
   </script>
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .glass {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-      .glass-dark {
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .slide-up {
-        animation: slideUp 0.3s ease-out;
-      }
-      @keyframes slideUp {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      .pulse-glow {
-        animation: pulseGlow 2s ease-in-out infinite;
-      }
-      @keyframes pulseGlow {
-        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-        50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
-      }
-      .hover-lift {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-      .hover-lift:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-      .gradient-text {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-      .stat-card {
-        transition: all 0.3s ease;
-      }
-      .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-      }
-      .progress-ring {
-        transition: stroke-dashoffset 0.5s ease;
-      }
-      .nav-item.active button {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-      }
-      .nav-item button {
-        color: #64748b;
-      }
-      .dark .nav-item button {
-        color: #94a3b8;
-      }
-      .nav-item button:hover {
-        background: rgba(99, 102, 241, 0.1);
-        color: #6366f1;
-      }
-      .dark .nav-item button:hover {
-        background: rgba(99, 102, 241, 0.2);
-        color: #a5b4fc;
-      }
-      .course-card {
-        transition: all 0.3s ease;
-      }
-      .course-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      }
-      .category-badge {
-        transition: all 0.2s ease;
-      }
-      .category-badge:hover {
-        transform: scale(1.05);
-      }
-    }
-  </style>
+  <script src="assets/js/nav.js" defer></script>
 </head>
 <body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
-  <div class="flex h-screen overflow-hidden">
-    <aside class="w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
+  <div class="app-shell flex h-screen overflow-hidden">
+    <aside class="app-sidebar w-64 lg:w-72 glass dark:glass-dark border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 transition-all duration-300">
       <div class="p-6 border-b border-gray-200 dark:border-gray-800">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -149,7 +49,7 @@
 
       <nav class="flex-1 overflow-y-auto py-4 space-y-2">
         <div class="nav-item active" data-module="dashboard">
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('dashboard.html')">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300" onclick="navigateTo('index.html')">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM4 21a1 1 0 011-1h6a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z"></path>
             </svg>
@@ -222,7 +122,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto">
+    <main class="app-main flex-1 overflow-y-auto">
       <div class="p-6 lg:p-8">
         <div class="mb-8 slide-up">
           <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">学习仪表盘</h2>

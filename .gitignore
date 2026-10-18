@@ -28,3 +28,5 @@ yarn-error.log*
 *.tmp
 *.temp
 .cache/
+# 构建与截图临时目录
+_build/

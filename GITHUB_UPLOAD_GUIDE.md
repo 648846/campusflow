@@ -6,7 +6,7 @@
 
 ```
 CampusFlow/
-├── dashboard.html      # 仪表盘
+├── index.html      # 仪表盘
 ├── schedule.html       # 课程管理
 ├── tasks.html          # 任务规划
 ├── goals.html          # 学习目标

@@ -1,0 +1,105 @@
+/* ==========================================================================
+   CampusFlow · 应用层样式（布局 / 响应式 / 移动端导航）
+   编译产物 tailwind.css 由 src/input.css 生成，此文件保持手写。
+   ========================================================================== */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 移动端顶部条与底部标签栏，默认在桌面端隐藏 */
+#cfTopbar,
+#cfTabbar {
+  display: none;
+}
+
+/* 滚动条（桌面端） */
+.app-main::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.app-main::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+}
+.app-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 选中态 */
+#cfTabbar .cf-tab[aria-current="page"] {
+  color: #6366f1;
+}
+#cfTabbar .cf-tab[aria-current="page"] .cf-tab-icon {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+.dark #cfTabbar .cf-tab[aria-current="page"] {
+  color: #a5b4fc;
+}
+
+/* ============================ 移动端（< 1024px） ============================ */
+@media (max-width: 1023.98px) {
+  /* 移动浏览器地址栏会吃掉 100vh，用 dvh 兜底 */
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .app-sidebar {
+    display: none !important;
+  }
+
+  #cfTopbar {
+    display: flex;
+  }
+
+  #cfTabbar {
+    display: flex;
+  }
+
+  .app-main {
+    padding-top: 56px;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 触屏上取消 hover 位移，避免点击后卡片"粘住" */
+  .hover-lift:hover,
+  .stat-card:hover,
+  .course-card:hover,
+  .task-card:hover,
+  .goal-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* 弹窗在小屏上贴底显示 */
+  .cf-modal-panel {
+    max-height: 88dvh;
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  #cfTopbar,
+  #cfTabbar {
+    display: none;
+  }
+}
+
+/* 尊重系统「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

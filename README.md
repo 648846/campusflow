@@ -6,15 +6,19 @@ CampusFlow 是一个专为大学生设计的现代化时间规划和学习管理
 
 ## 技术栈
 
-- **前端框架**: 纯 HTML5 + CSS3 + JavaScript
-- **样式框架**: Tailwind CSS 3.x
-- **图表库**: Chart.js 4.x
-- **数据存储**: LocalStorage (浏览器本地存储)
+- **前端框架**: 纯 HTML5 + CSS3 + JavaScript（无框架依赖，零运行时开销）
+- **样式框架**: Tailwind CSS 3.4（构建期编译，产物已随仓库提供）
+- **图表库**: Chart.js 4.4（本地引入）
+- **文档预览**: PDF.js 3.11（本地引入）
+- **数据存储**: LocalStorage（浏览器本地存储，无需服务端）
 - **音频处理**: Web Audio API
+
+> **离线可用**：项目不再依赖任何 CDN。`assets/vendor/` 与 `assets/css/tailwind.css`
+> 均已本地化，断网、校园网、评委离线评审环境下表现完全一致。
 
 ## 功能特性
 
-### 1. 仪表盘 (dashboard.html)
+### 1. 仪表盘 (index.html)
 - 数据可视化展示
 - 学习进度统计
 - 最近课程提醒
@@ -57,25 +61,41 @@ CampusFlow 是一个专为大学生设计的现代化时间规划和学习管理
 
 ## 系统架构
 
-### 页面结构
+### 目录结构
 ```
 CampusFlow/
-├── dashboard.html      # 仪表盘
+├── index.html          # 仪表盘（应用入口）
 ├── schedule.html       # 课程管理
 ├── tasks.html          # 任务规划
 ├── goals.html          # 学习目标
 ├── focus.html          # 专注模式
-├── preview.html        # 在线预览
+├── preview.html        # 在线预览（PDF / 图片 / 音视频 / 文本）
 ├── download.html       # 文件下载
-└── README.md           # 项目文档
+├── assets/
+│   ├── css/
+│   │   ├── tailwind.css    # Tailwind 编译产物（勿手改）
+│   │   └── app.css         # 布局与响应式样式
+│   ├── js/
+│   │   └── nav.js          # 移动端顶部栏 + 底部标签栏
+│   └── vendor/             # Chart.js / PDF.js 本地副本
+├── src/
+│   └── input.css           # Tailwind 源样式（自定义工具类在此定义）
+├── tailwind.config.js      # Tailwind 配置
+├── main.js                 # Electron 主进程入口
+└── package.json
 ```
+
+### 响应式设计
+- **桌面端（≥1024px）**：左侧固定导航栏 + 内容区
+- **移动端（<1024px）**：顶部状态栏 + 底部六宫格标签栏，内容单列自适应
+- 已针对手机触控做优化：取消 hover 位移、加大点按区域、适配安全区
 
 ### 数据存储架构
 ```javascript
 // LocalStorage 键名
 - campusflow_courses    # 课程数据
 - campusflow_tasks      # 任务数据
-- campusflow_goals      # 学习目标数据
+- campusflow_goals      # 学习目标数据（兼容旧键 learningGoals，首次读取时自动迁移）
 - campusflow_settings   # 应用设置
 - theme                 # 主题设置
 ```
@@ -112,6 +132,20 @@ http-server -p 8000
 # 在浏览器中访问
 http://localhost:8000
 ```
+
+### 样式开发（仅修改样式时需要）
+
+仓库内已包含编译好的 `assets/css/tailwind.css`，直接双击 HTML 即可运行，
+无需安装任何环境。仅当你**修改样式或新增 Tailwind 类名**时才需要重新编译：
+
+```bash
+npm install           # 首次执行，安装 Tailwind CLI
+npm run css           # 编译一次
+npm run css:watch     # 开发时监听文件变化
+```
+
+`src/input.css` 集中存放项目自定义工具类（玻璃拟态、动效、卡片等），
+新增类名后必须重新编译，否则不会生效。
 
 ### 打包成App
 
@@ -171,7 +205,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile('dashboard.html');
+  win.loadFile('index.html');
 }
 
 app.whenReady().then(createWindow);
@@ -209,7 +243,7 @@ npm run package
   "name": "CampusFlow",
   "short_name": "CampusFlow",
   "description": "大学生专属时间规划",
-  "start_url": "./dashboard.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
@@ -242,7 +276,7 @@ npm run package
 {
   "name": "campusflow",
   "version": "1.0.0",
-  "main": "dashboard.html",
+  "main": "index.html",
   "window": {
     "title": "CampusFlow",
     "width": 1200,
@@ -259,7 +293,7 @@ npm run package
 
 ### 基本使用流程
 
-1. **启动应用**：打开dashboard.html或通过导航访问首页
+1. **启动应用**：打开index.html或通过导航访问首页
 2. **添加课程**：进入课程管理页面，点击"添加课程"
 3. **创建任务**：在任务规划页面添加待办事项
 4. **设定目标**：在学习目标页面设定学习目标
@@ -339,7 +373,7 @@ A: 点击右上角的主题切换按钮，在深色/浅色模式之间切换。
 
 ```
 CampusFlow/
-├── dashboard.html      # 主仪表盘
+├── index.html      # 主仪表盘
 ├── schedule.html       # 课程管理
 ├── tasks.html          # 任务规划
 ├── goals.html          # 学习目标

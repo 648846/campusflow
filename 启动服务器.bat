@@ -34,7 +34,7 @@ timeout /t 3 /nobreak >nul
 
 REM 打开浏览器
 echo [信息] 正在打开浏览器...
-start http://localhost:8000/dashboard.html
+start http://localhost:8000/index.html
 
 echo.
 echo ========================================
@@ -42,10 +42,10 @@ echo    CampusFlow 已成功启动！
 echo ========================================
 echo.
 echo 请在浏览器中访问：
-echo http://localhost:8000/dashboard.html
+echo http://localhost:8000/index.html
 echo.
 echo 功能页面：
-echo - 仪表盘:      http://localhost:8000/dashboard.html
+echo - 仪表盘:      http://localhost:8000/index.html
 echo - 课程管理:    http://localhost:8000/schedule.html
 echo - 任务规划:    http://localhost:8000/tasks.html
 echo - 学习目标:    http://localhost:8000/goals.html

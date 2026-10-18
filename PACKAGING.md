@@ -106,7 +106,7 @@ function createWindow() {
     icon: path.join(__dirname, 'build/icon.png')
   });
 
-  mainWindow.loadFile('dashboard.html');
+  mainWindow.loadFile('index.html');
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -279,7 +279,7 @@ npm run build
   "name": "CampusFlow",
   "short_name": "CampusFlow",
   "description": "大学生专属时间规划",
-  "start_url": "./dashboard.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
@@ -352,7 +352,7 @@ npm run build
 const CACHE_NAME = 'campusflow-v1';
 const urlsToCache = [
   './',
-  './dashboard.html',
+  './index.html',
   './schedule.html',
   './tasks.html',
   './goals.html',
@@ -420,7 +420,7 @@ PWA 需要 HTTPS（localhost 除外）。部署到：
   "name": "campusflow",
   "version": "1.0.0",
   "description": "CampusFlow - 大学生专属时间规划",
-  "main": "dashboard.html",
+  "main": "index.html",
   "window": {
     "title": "CampusFlow",
     "width": 1280,
@@ -505,11 +505,11 @@ REM 等待服务器启动
 timeout /t 2 /nobreak >nul
 
 REM 打开浏览器
-start http://localhost:8000/dashboard.html
+start http://localhost:8000/index.html
 
 echo.
 echo CampusFlow is running!
-echo Open your browser to: http://localhost:8000/dashboard.html
+echo Open your browser to: http://localhost:8000/index.html
 echo.
 echo Press any key to stop the server...
 pause >nul
@@ -545,14 +545,14 @@ sleep 2
 
 # 打开浏览器
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    open "http://localhost:8000/dashboard.html"
+    open "http://localhost:8000/index.html"
 else
-    xdg-open "http://localhost:8000/dashboard.html"
+    xdg-open "http://localhost:8000/index.html"
 fi
 
 echo ""
 echo "CampusFlow is running!"
-echo "Open your browser to: http://localhost:8000/dashboard.html"
+echo "Open your browser to: http://localhost:8000/index.html"
 echo ""
 echo "Press Ctrl+C to stop the server..."
 

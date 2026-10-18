@@ -26,7 +26,7 @@
 
 ```
 CampusFlow/
-├── dashboard.html
+├── index.html
 ├── schedule.html
 ├── tasks.html
 ├── goals.html
@@ -46,7 +46,7 @@ CampusFlow/
    - 使用文件资源管理器打开项目文件夹
 
 2. **直接打开HTML文件
-   - 双击 `dashboard.html`
+   - 双击 `index.html`
    - 文件会在默认浏览器中打开
    - 应用已可以使用
 
@@ -77,7 +77,7 @@ python -m http.server 8000
 在浏览器中打开：
 
 ```
-http://localhost:8000/dashboard.html
+http://localhost:8000/index.html
 ```
 
 或直接访问首页：
@@ -100,7 +100,7 @@ http://localhost:8000/
 ### 方法一：直接打开
 
 1. 打开 Finder，找到项目文件夹
-2. 双击 `dashboard.html`
+2. 双击 `index.html`
 3. 文件会在 Safari 或默认浏览器中打开
 
 ### 方法二：使用 Python HTTP 服务器
@@ -130,7 +130,7 @@ python3 -m http.server 8000
 在浏览器中打开：
 
 ```
-http://localhost:8000/dashboard.html
+http://localhost:8000/index.html
 ```
 
 ### 方法三：使用 Homebrew + nginx
@@ -159,7 +159,7 @@ http://localhost/
 ### 方法一：直接打开
 
 1. 使用文件管理器打开项目文件夹
-2. 双击 `dashboard.html`
+2. 双击 `index.html`
 3. 文件会在默认浏览器中打开
 
 ### 方法二：使用 Python HTTP 服务器
@@ -203,7 +203,7 @@ python3 -m http.server 8000
 在浏览器中打开：
 
 ```
-http://localhost:8000/dashboard.html
+http://localhost:8000/index.html
 ```
 
 ### 方法三：使用 Apache
