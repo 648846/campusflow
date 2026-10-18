@@ -292,6 +292,7 @@
             <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
               <button onclick="exportBackup()" class="px-4 py-2 text-sm font-medium rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors">导出备份</button>
               <button onclick="triggerImport()" class="px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">导入备份</button>
+              <button onclick="loadDemoData()" class="px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">载入演示数据</button>
               <button onclick="clearAllData()" class="px-4 py-2 text-sm font-medium rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition-colors">清空数据</button>
             </div>
           </div>
@@ -661,6 +662,21 @@
       if (!ok) return;
       CF.clearAll();
       location.reload();
+    }
+
+    /**
+     * 载入演示数据：把数据拉回同一初始点（8 门课 / 7 项任务 / 3 个目标 / 14 天专注记录）。
+     * 录屏、答辩演示前点一次即可，避免"上一次演示改过的数据"留在页面里。
+     * 也可以用 URL 参数跳过这一步：任意页面后加 ?demo=1 打开即自动重置。
+     */
+    function loadDemoData() {
+      var ok = confirm('将清空当前数据并载入内置示例数据：\n8 门课程 / 7 项任务 / 3 个学习目标 / 14 天专注记录。\n\n此操作不可撤销，建议先导出备份。确定继续？');
+      if (!ok) return;
+      if (CF.loadDemo()) {
+        location.reload();
+      } else {
+        toast('载入失败：本地存储可能已满，请先导出备份再清理空间');
+      }
     }
 
     /* ---------------------------------- 基础 ---------------------------------- */

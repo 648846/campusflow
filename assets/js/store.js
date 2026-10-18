@@ -230,11 +230,12 @@
 
   var DEMO_TASKS = [
     { id: 1, title: '完成数据结构作业', course: '数据结构与算法', priority: 'high', dueDate: '今天 18:00', estimate: 50, completed: false },
-    { id: 2, title: '复习线性代数第三章', course: '线性代数', priority: 'medium', dueDate: '今天 21:00', estimate: 50, completed: false },
+    { id: 2, title: '复习线性代数第三章', course: '线性代数', priority: 'medium', dueDate: '今天 21:00', estimate: 25, completed: false },
     { id: 3, title: '准备计算机网络实验报告', course: '计算机网络', priority: 'high', dueDate: '明天 14:00', estimate: 75, completed: false },
     { id: 4, title: '数据库课程设计', course: '数据库原理', priority: 'medium', dueDate: '周五 16:00', estimate: 100, completed: false },
-    { id: 5, title: '阅读软件工程论文', course: '软件工程', priority: 'low', dueDate: '下周', estimate: 25, completed: true },
-    { id: 6, title: '操作系统实验', course: '操作系统', priority: 'high', dueDate: '今天 20:00', estimate: 50, completed: true }
+    { id: 5, title: '概率论错题整理', course: '概率论与数理统计', priority: 'high', dueDate: '下周三 10:00', estimate: 50, completed: false },
+    { id: 6, title: '阅读软件工程论文', course: '软件工程', priority: 'low', dueDate: '下周', estimate: 25, completed: true },
+    { id: 7, title: '操作系统实验', course: '操作系统', priority: 'high', dueDate: '今天 20:00', estimate: 50, completed: true }
   ];
 
   var DEMO_GOALS = [
@@ -325,6 +326,24 @@
     try { localStorage.setItem(KEYS.seeded, '1'); } catch (e) { /* 忽略 */ }
   }
 
+  /**
+   * 载入演示数据：先清空再用内置示例重建，得到一份可复现的干净数据。
+   * 录屏与答辩演示时用它把状态拉到同一初始点，避免"上次录到一半改过的数据"。
+   * 也支持 URL 参数：任意页面加 ?demo=1 打开即自动执行一次。
+   */
+  function loadDemo() {
+    [KEYS.courses, KEYS.tasks, KEYS.goals, KEYS.focusHistory, KEYS.focusStats, KEYS.settings, 'learningGoals'].forEach(function (k) {
+      try { localStorage.removeItem(k); } catch (e) { /* 忽略 */ }
+    });
+    try { localStorage.removeItem(KEYS.seeded); } catch (e) { /* 忽略 */ }
+    var ok = write(KEYS.courses, DEMO_COURSES)
+      && write(KEYS.tasks, DEMO_TASKS)
+      && write(KEYS.goals, DEMO_GOALS)
+      && write(KEYS.focusHistory, demoFocusHistory());
+    try { localStorage.setItem(KEYS.seeded, '1'); } catch (e) { /* 忽略 */ }
+    return ok;
+  }
+
   /* --------------------------------- 通用 UI --------------------------------- */
 
   /** 转义 HTML，所有用户输入渲染到页面时都必须经过它 */
@@ -362,6 +381,7 @@
     todayCourses: todayCourses,
     attentionCourses: attentionCourses,
     seedIfEmpty: seedIfEmpty,
+    loadDemo: loadDemo,
     exportAll: exportAll,
     importAll: importAll,
     clearAll: clearAll,
@@ -369,6 +389,11 @@
     todayKey: todayKey,
     WEEK_CN: WEEK_CN
   };
+
+  // ?demo=1：打开任意页面即把数据重置为演示状态（录屏 / 答辩前用一次即可）
+  try {
+    if (/[?&]demo=1(?:&|$)/.test(location.search)) loadDemo();
+  } catch (e) { /* 忽略 */ }
 
   /* ------------------------------ 侧边栏统计口径 ----------------------------- */
 
