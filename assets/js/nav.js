@@ -112,6 +112,22 @@
     }, true);
   }
 
+  // ---- PWA：注册 Service Worker ----
+  // 仅 http/https 生效；直接双击 index.html（file://）时浏览器禁止注册，跳过即可。
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('service-worker.js').catch(function () {
+        /* 离线缓存不可用不影响主体功能，静默跳过 */
+      });
+    });
+  }
+
+  // 记录安装事件：Chrome 地址栏会显示安装图标，需要时也可用 window.__cfInstallPrompt.prompt() 手动唤起
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    window.__cfInstallPrompt = e;
+  });
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

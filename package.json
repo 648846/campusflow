@@ -12,7 +12,9 @@
     "build:win": "npm run css && electron-builder --win",
     "build:mac": "npm run css && electron-builder --mac",
     "build:linux": "npm run css && electron-builder --linux",
-    "test": "node tests/scheduler.test.js"
+    "check": "node scripts/check-assets.js",
+    "test": "node tests/scheduler.test.js",
+    "verify": "npm test && npm run check"
   },
   "build": {
     "appId": "com.campusflow.app",

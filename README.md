@@ -1,8 +1,30 @@
 # CampusFlow - 大学生专属时间规划
 
+[![CI](https://github.com/648846/campusflow/actions/workflows/ci.yml/badge.svg)](https://github.com/648846/campusflow/actions/workflows/ci.yml)
+![PWA](https://img.shields.io/badge/PWA-可安装-1565C0)
+![offline](https://img.shields.io/badge/离线-可用-00897B)
+![deps](https://img.shields.io/badge/运行时依赖-0-455A64)
+![license](https://img.shields.io/badge/license-MIT-green)
+
 ## 项目概述
 
 CampusFlow 是一个专为大学生设计的现代化时间规划和学习管理Web应用。它提供了课程管理、任务规划、学习目标追踪、专注模式以及在线预览等功能，帮助学生更高效地组织学习生活。
+
+## 界面预览
+
+桌面端（1280 px）：
+
+![仪表盘](docs/screenshots/desktop-index.png)
+
+![智能排程](docs/screenshots/desktop-plan.png)
+
+移动端（390 px，顶部栏 + 底部标签栏）：
+
+<img src="docs/screenshots/mobile-index.png" width="300" alt="移动端仪表盘"> <img src="docs/screenshots/mobile-plan.png" width="300" alt="移动端智能排程">
+
+深色模式：
+
+<img src="docs/screenshots/desktop-index-dark.png" width="700" alt="深色模式仪表盘">
 
 ## 参赛材料
 
@@ -130,14 +152,32 @@ CampusFlow/
 │   ├── js/
 │   │   ├── store.js        # 数据层：读写 / 统计 / 播种 / 备份
 │   │   ├── scheduler.js    # 智能排程引擎（纯函数，可单测）
-│   │   └── nav.js          # 移动端顶部栏 + 底部标签栏
+│   │   └── nav.js          # 移动端顶部栏 + 底部标签栏（含 SW 注册）
+│   ├── icons/              # PWA 图标 192 / 512 / maskable / apple-touch
 │   └── vendor/             # Chart.js / PDF.js 本地副本
+├── manifest.webmanifest    # PWA 清单（名称、图标、快捷入口）
+├── service-worker.js       # 离线缓存：外壳预缓存 + 运行时缓存
+├── scripts/
+│   └── check-assets.js     # 站内引用 / 外链 / 清单完整性检查
+├── tests/
+│   └── scheduler.test.js   # 排程引擎 19 项单元测试
+├── docs/screenshots/       # README 用界面截图
 ├── src/
 │   └── input.css           # Tailwind 源样式（自定义工具类在此定义）
 ├── tailwind.config.js      # Tailwind 配置
 ├── main.js                 # Electron 主进程入口
 └── package.json
 ```
+
+### 测试与持续集成
+
+```bash
+npm test          # 排程引擎 19 项单元测试
+npm run check     # 8 个页面的本地引用、外链残留、manifest 与 SW 清单完整性
+npm run verify    # 以上两项一起跑（CI 用的也是这一条链路）
+```
+
+`.github/workflows/ci.yml` 在每次 push 与 PR 时自动执行上述两项检查，无需安装依赖（测试与检查脚本均为零依赖纯 Node）。
 
 ### 响应式设计
 - **桌面端（≥1024px）**：左侧固定导航栏 + 内容区
@@ -204,6 +244,21 @@ http-server -p 8000
 # 在浏览器中访问
 http://localhost:8000
 ```
+
+### 安装为应用（PWA）
+
+CampusFlow 是一个可安装的 Web 应用（PWA）。通过 http(s) 访问后，浏览器地址栏会出现安装图标，装完即是独立窗口的应用，**断网也能打开**（Service Worker 已缓存应用外壳）。
+
+| 平台 | 操作 |
+| --- | --- |
+| 桌面 Chrome / Edge | 点击地址栏右侧的安装图标，或菜单 →「安装 CampusFlow」 |
+| Android Chrome | 右上角菜单 →「添加到主屏幕 / 安装应用」 |
+| iOS Safari | 分享 →「添加到主屏幕」 |
+| 微信 / 内置浏览器 | 通常不支持安装，请用系统浏览器打开链接 |
+
+安装后长按应用图标可出现「智能排程 / 任务 / 专注」三个快捷入口。
+
+> 说明：Service Worker 只在 `http(s)` 下生效。直接双击 `index.html`（`file://` 协议）时功能完整可用，但无法安装、也不会写入离线缓存——这是浏览器的安全限制，不是应用缺陷。
 
 ### 样式开发（仅修改样式时需要）
 
