@@ -24,6 +24,7 @@
     })();
   </script>
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/nav.js" defer></script>
 </head>
 <body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
@@ -609,23 +610,7 @@
       window.location.href = page;
     }
 
-    function initTheme() {
-      const themeToggle = document.getElementById('themeToggle');
-      const isDark = localStorage.getItem('theme') === 'dark' || 
-                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      }
-      
-      themeToggle.addEventListener('click', function() {
-        document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      });
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
-      initTheme();
       CF.seedIfEmpty();
       loadTasks();
       renderTaskList();

@@ -93,6 +93,41 @@ html {
   }
 }
 
+/* ============================== 主题切换过渡 ============================== */
+
+/* View Transitions：新主题以圆形从点击处扩散，旧快照压在底层不参与动画 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 不支持 View Transitions 的浏览器走这条：颜色统一在 380ms 内渐变 */
+  html.cf-theme-anim,
+  html.cf-theme-anim *,
+  html.cf-theme-anim *::before,
+  html.cf-theme-anim *::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow !important;
+    transition-duration: 380ms !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition-delay: 0s !important;
+  }
+
+  /* 按钮本身没有底色，单靠颜色渐变看不出来，补一个轻微的旋转回弹 */
+  @keyframes cf-theme-pop {
+    0%   { transform: scale(1) rotate(0deg); }
+    40%  { transform: scale(0.86) rotate(-14deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  html.cf-theme-anim #themeToggle,
+  html.cf-theme-anim #cfThemeToggle {
+    animation: cf-theme-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
 /* 尊重系统「减少动态效果」设置 */
 @media (prefers-reduced-motion: reduce) {
   *,

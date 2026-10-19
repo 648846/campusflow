@@ -61,7 +61,7 @@
       '</button>';
     document.body.appendChild(el);
 
-    el.querySelector('#cfThemeToggle').addEventListener('click', toggleTheme);
+    // #cfThemeToggle 的点击由 assets/js/theme.js 统一委托处理（含过渡动效）
   }
 
   function buildTabbar(page) {
@@ -79,12 +79,6 @@
         '</span><span>' + p.label + '</span></a>';
     }).join('');
     document.body.appendChild(el);
-  }
-
-  function toggleTheme() {
-    var root = document.documentElement;
-    var dark = root.classList.toggle('dark');
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
   }
 
   function init() {

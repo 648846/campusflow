@@ -25,6 +25,7 @@
     })();
   </script>
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/nav.js" defer></script>
 </head>
 <body class="bg-light dark:bg-dark min-h-screen transition-colors duration-300">
@@ -568,6 +569,27 @@
 
     /* ---------------------------------- 图表 ---------------------------------- */
 
+    /**
+     * 主题切换后重绘图表配色。
+     * canvas 里的像素不受 CSS 过渡控制，必须把网格与刻度的颜色重新写一遍，
+     * 否则切到夜间模式后图表仍留着白底时代的浅灰网格。
+     */
+    function rethemeCharts(isDark) {
+      var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+      var tickColor = isDark ? '#94a3b8' : '#64748b';
+
+      if (progressChart) {
+        progressChart.options.scales.y.grid.color = gridColor;
+        progressChart.options.scales.y.ticks.color = tickColor;
+        progressChart.options.scales.x.ticks.color = tickColor;
+        progressChart.update('none');
+      }
+      if (categoryChart) {
+        categoryChart.options.plugins.legend.labels.color = tickColor;
+        categoryChart.update('none');
+      }
+    }
+
     function initCharts() {
       var s = statsData;
       var isDark = document.documentElement.classList.contains('dark');
@@ -760,18 +782,13 @@
       }).join('');
     }
 
-    function initTheme() {
-      var themeToggle = document.getElementById('themeToggle');
-      if (!themeToggle) return;
-      themeToggle.addEventListener('click', function () {
-        var dark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', dark ? 'dark' : 'light');
-        renderHeatmap(); // 热力图用内联色值，切换主题后需要重绘
-      });
-    }
+    // 主题切换后，热力图与两张图表都是画布/内联色值，需要主动重绘
+    document.addEventListener('cf:themechange', function (e) {
+      renderHeatmap();
+      rethemeCharts(e.detail.dark);
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
-      initTheme();
       renderStats();
       renderTodayPlan();
       renderReminders();
