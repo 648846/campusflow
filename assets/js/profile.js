@@ -19,6 +19,17 @@
 
   var modal = null;
   var draftTone = 'indigo';
+  var saveBtn = null;
+  var saveLabel = '';
+  var closing = null;
+
+  var CHECK_ICON = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">' +
+    '<path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>';
+
+  var SAVE_CLS = 'flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white ' +
+    'text-sm font-semibold hover-lift shadow-glow flex items-center justify-center gap-1.5';
+  var SAVED_CLS = 'flex-1 px-4 py-2.5 rounded-xl bg-success text-white text-sm font-semibold ' +
+    'flex items-center justify-center gap-1.5 cursor-default';
 
   function esc(s) {
     if (global.CF && CF.escapeHtml) return CF.escapeHtml(String(s == null ? '' : s));
@@ -149,7 +160,7 @@
 
         '<div class="sticky bottom-0 -mx-6 -mb-6 mt-5 px-6 py-4 rounded-b-2xl border-t border-gray-100 dark:border-gray-700 bg-white/95 dark:bg-dark/95 backdrop-blur flex items-center gap-3">' +
           '<button type="button" data-cf-profile-close class="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">取消</button>' +
-          '<button type="button" data-cf-profile-save class="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold hover-lift shadow-glow">保存</button>' +
+          '<button type="button" data-cf-profile-save class="' + SAVE_CLS + '">保存</button>' +
         '</div>' +
       '</div>';
 
@@ -161,7 +172,9 @@
     el.querySelectorAll('[data-cf-profile-close]').forEach(function (b) {
       b.addEventListener('click', close);
     });
-    el.querySelector('[data-cf-profile-save]').addEventListener('click', save);
+    saveBtn = el.querySelector('[data-cf-profile-save]');
+    saveLabel = saveBtn.innerHTML;
+    saveBtn.addEventListener('click', save);
 
     ['pfName', 'pfMajor', 'pfAvatar'].forEach(function (id) {
       el.querySelector('#' + id).addEventListener('input', syncPreview);
@@ -186,6 +199,9 @@
     var major = modal.querySelector('#pfMajor').value.trim() || '未填写专业';
     var letter = modal.querySelector('#pfAvatar').value.trim() || name.charAt(0);
 
+    // 占位符跟着昵称走，让"留空取首字"所见即所得
+    modal.querySelector('#pfAvatar').placeholder = name.charAt(0);
+
     modal.querySelector('#pfAvatarPreview').textContent = letter.slice(0, 1);
     modal.querySelector('#pfAvatarPreview').style.background = gradient(draftTone);
     modal.querySelector('#pfNamePreview').textContent = name;
@@ -199,6 +215,14 @@
     draftTone = p.tone;
 
     if (!modal) modal = buildModal();
+
+    // 上一次保存留下的「已保存」状态要复位
+    if (closing) { clearTimeout(closing); closing = null; }
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.className = SAVE_CLS;
+      saveBtn.innerHTML = saveLabel;
+    }
 
     modal.querySelector('#pfName').value = p.name;
     modal.querySelector('#pfMajor').value = p.major;
@@ -239,6 +263,7 @@
   }
 
   function close() {
+    if (closing) { clearTimeout(closing); closing = null; }
     if (!modal) return;
     modal.classList.add('hidden');
     modal.classList.remove('flex');
@@ -256,8 +281,19 @@
 
     CF.saveProfile({ name: name, major: major, avatar: letter.slice(0, 1), tone: draftTone });
     render();
-    close();
-    CF.toast('个人资料已更新');
+
+    // 就地确认：按钮先变绿打勾，再收起弹窗。
+    // 只靠底部 toast 的话，提示会出现在视野之外的屏幕下方，很容易被漏掉。
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.className = SAVED_CLS;
+      saveBtn.innerHTML = CHECK_ICON + '已保存';
+    }
+    // toast 延后到弹窗收起之后再出，避免和弹窗底栏叠在一起
+    closing = setTimeout(function () {
+      close();
+      CF.toast('个人资料已更新');
+    }, 820);
   }
 
   document.addEventListener('keydown', function (e) {
