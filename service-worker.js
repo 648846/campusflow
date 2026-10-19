@@ -12,7 +12,7 @@
    ========================================================================== */
 'use strict';
 
-var VERSION = 'campusflow-v3';
+var VERSION = 'campusflow-v4';
 var SHELL_CACHE = VERSION + '-shell';
 var RUNTIME_CACHE = VERSION + '-runtime';
 
@@ -34,6 +34,7 @@ var SHELL_FILES = [
   './assets/js/store.js',
   './assets/js/scheduler.js',
   './assets/js/theme.js',
+  './assets/js/profile.js',
   './assets/js/nav.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png'

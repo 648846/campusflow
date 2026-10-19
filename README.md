@@ -60,6 +60,7 @@ CampusFlow 是一个专为大学生设计的现代化时间规划和学习管理
 - 待办提醒：按优先级排列的后续待办
 - 需要重点关注的课程：按进度自动排序并给出建议
 - 数据与隐私：一键导出 / 导入备份、清空数据
+- 侧边栏个人卡：昵称、专业、头像（首字 + 四套配色）、等级与升级进度，点铅笔可编辑并持久保存
 
 ### 2. 智能排程 (plan.html) ★ 核心能力
 - 把「课程表 + 任务截止时间 + 课程进度」合成一份可执行的每日学习计划
@@ -205,7 +206,7 @@ npm run verify    # 以上两项一起跑（CI 用的也是这一条链路）
 - campusflow_tasks      # 任务数据
 - campusflow_goals      # 学习目标数据（兼容旧键 learningGoals，首次读取时自动迁移）
 - focusHistory          # 专注记录（写入后仪表盘统计即时生效）
-- campusflow_settings   # 应用设置
+- campusflow_settings   # 应用设置（内含 profile：昵称、专业、头像字、配色）
 - campusflow_seeded     # 是否已初始化示例数据
 - theme                 # 主题设置
 ```

@@ -260,6 +260,59 @@
     }).slice(0, limit || 3);
   }
 
+  /* --------------------------------- 个人资料 -------------------------------- */
+
+  var DEFAULT_PROFILE = { name: '努力努力再努力', major: '物联网工程', avatar: '努', tone: 'indigo' };
+
+  /** 个人资料存放在 campusflow_settings.profile 里，与其它设置共存 */
+  function getProfile() {
+    var all = read(KEYS.settings, null) || {};
+    var p = all.profile || {};
+    var name = String(p.name || DEFAULT_PROFILE.name).slice(0, 20);
+    return {
+      name: name,
+      major: String(p.major || DEFAULT_PROFILE.major).slice(0, 24),
+      avatar: String(p.avatar || name.charAt(0) || 'C').slice(0, 1),
+      tone: p.tone || DEFAULT_PROFILE.tone
+    };
+  }
+
+  /** 只覆盖传入的字段，其余保持不变 */
+  function saveProfile(patch) {
+    var all = read(KEYS.settings, null) || {};
+    var next = getProfile();
+    Object.keys(patch || {}).forEach(function (k) {
+      if (patch[k] !== null && patch[k] !== undefined) next[k] = String(patch[k]);
+    });
+    all.profile = next;
+    write(KEYS.settings, all);
+    return next;
+  }
+
+  /** 等级按累计专注时长换算：每 20 小时升一级，每两级换一个称号 */
+  var LEVEL_STEP = 20;
+  var LEVEL_TITLES = ['刚起步', '渐入佳境', '稳定输出', '高效运转', '长期主义'];
+
+  /**
+   * 侧边栏个人卡与资料弹窗共用的数据。
+   * 等级只依赖专注记录，不掺入任务数，避免"加任务就能升级"的作弊感。
+   */
+  function profileCard() {
+    var s = stats();
+    var hours = s.totalMinutes / 60;
+    var level = Math.floor(hours / LEVEL_STEP) + 1;
+    var into = hours % LEVEL_STEP;
+    var idx = Math.min(LEVEL_TITLES.length - 1, Math.floor((level - 1) / 2));
+    return {
+      profile: getProfile(),
+      level: level,
+      title: LEVEL_TITLES[idx],
+      percent: Math.round(into / LEVEL_STEP * 100),
+      toNext: Math.round((LEVEL_STEP - into) * 10) / 10,
+      stats: s
+    };
+  }
+
   /* ------------------------------- 示例数据播种 ------------------------------- */
 
   var DEMO_COURSES = [
@@ -438,6 +491,9 @@
     getGoals: getGoals,
     getFocusSessions: getFocusSessions,
     focusHeatmap: focusHeatmap,
+    getProfile: getProfile,
+    saveProfile: saveProfile,
+    profileCard: profileCard,
     stats: stats,
     todayCourses: todayCourses,
     attentionCourses: attentionCourses,

@@ -52,16 +52,29 @@
           '<span class="block text-[10px] text-gray-500 dark:text-gray-400 truncate">' + page.label + '</span>' +
         '</span>' +
       '</a>' +
-      '<button id="cfThemeToggle" type="button" aria-label="切换深色模式" ' +
-        'class="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 active:scale-95 transition-transform">' +
-        '<svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
-          '<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 0 0 12 21a9.003 9.003 0 0 0 8.354-5.646Z"/></svg>' +
-        '<svg class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
-          '<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>' +
-      '</button>';
+      '<div class="flex items-center gap-1.5">' +
+        '<button id="cfProfileBtn" type="button" aria-label="个人资料" ' +
+          'class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold active:scale-95 transition-transform ' +
+          'bg-gradient-to-br from-primary to-secondary"></button>' +
+        '<button id="cfThemeToggle" type="button" aria-label="切换深色模式" ' +
+          'class="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 active:scale-95 transition-transform">' +
+          '<svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 0 0 12 21a9.003 9.003 0 0 0 8.354-5.646Z"/></svg>' +
+          '<svg class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364-.707-.707M6.343 6.343l-.707.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>' +
+        '</button>' +
+      '</div>';
     document.body.appendChild(el);
 
     // #cfThemeToggle 的点击由 assets/js/theme.js 统一委托处理（含过渡动效）
+    var pf = el.querySelector('#cfProfileBtn');
+    if (pf) {
+      pf.addEventListener('click', function () {
+        if (window.CFProfile) CFProfile.open();
+      });
+      // 配色与首字由 profile.js 统一绘制（含用户自定义主题色）
+      if (window.CFProfile && CFProfile.paint) CFProfile.paint();
+    }
   }
 
   function buildTabbar(page) {
