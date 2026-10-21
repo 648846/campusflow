@@ -11,6 +11,24 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* 专注热力图格子的尺寸变量：13 周 × 7 天，窄屏自动收窄，避免右侧被裁 */
+:root {
+  --hm: 18px;
+  --hm-gap: 5px;
+}
+@media (max-width: 430px) {
+  :root {
+    --hm: 16px;
+    --hm-gap: 3px;
+  }
+}
+@media (max-width: 360px) {
+  :root {
+    --hm: 13px;
+    --hm-gap: 3px;
+  }
+}
+
 /* 移动端顶部条与底部标签栏，默认在桌面端隐藏 */
 #cfTopbar,
 #cfTabbar {
@@ -65,7 +83,7 @@ html {
 
   .app-main {
     padding-top: 56px;
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
     -webkit-overflow-scrolling: touch;
   }
 

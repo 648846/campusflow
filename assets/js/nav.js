@@ -54,7 +54,7 @@
       '</a>' +
       '<div class="flex items-center gap-1.5">' +
         '<button id="cfProfileBtn" type="button" aria-label="个人资料" ' +
-          'class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold active:scale-95 transition-transform ' +
+          'class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold active:scale-95 transition-transform ' +
           'bg-gradient-to-br from-primary to-secondary"></button>' +
         '<button id="cfThemeToggle" type="button" aria-label="切换深色模式" ' +
           'class="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 active:scale-95 transition-transform">' +
