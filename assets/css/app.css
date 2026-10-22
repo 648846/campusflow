@@ -156,3 +156,20 @@ html {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ==========================================================================
+   工具类补齐
+   tailwind.css 是构建期产物（700KB），新增用到的少数类在这里等价声明，
+   避免每次微调都要重新发布整份编译结果。取值与 Tailwind 默认一致。
+   ========================================================================== */
+.gap-y-2 { row-gap: 0.5rem; }
+.-my-1 { margin-top: -0.25rem; margin-bottom: -0.25rem; }
+.py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+.text-\[13px\] { font-size: 13px; }
+.break-words { overflow-wrap: break-word; word-wrap: break-word; }
+.bg-primary\/20 { background-color: rgba(99, 102, 241, 0.2); }
+
+@media (min-width: 640px) {
+  .sm\:w-auto { width: auto; }
+  .sm\:flex-1 { flex: 1 1 0%; }
+}

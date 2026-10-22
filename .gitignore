@@ -30,3 +30,11 @@ yarn-error.log*
 .cache/
 # 构建与截图临时目录
 _build/
+
+# 参赛材料中的大体积成品与内部文档
+参赛材料/*.mp4
+参赛材料/*.pdf
+参赛材料/*.zip
+提交清单.docx
+_build/
+_tmp/
